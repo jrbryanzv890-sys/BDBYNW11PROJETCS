@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistema de Inventario y Balance Fácil</title>
+    <title>ProFact - Control de Inventario</title>
 
-    <!-- LIBRERÍAS EXTERNAS PARA GENERACIÓN DIRECTA DE PDF EN APK ANDROID -->
+    <!-- LIBRERÍAS PARA GENERACIÓN DE PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -371,7 +371,7 @@
     <div class="contenedor">
 
         <header class="encabezado">
-            <h1>Inventario CoreStock</h1>
+            <h1>Sistema CoreStock</h1>
             <p>Control y Balance de Empresa</p>
         </header>
 
@@ -389,7 +389,7 @@
 
                 <div class="bloque-formulario">
                     <label class="etiqueta-grande" for="inputNombre">Paso 1: Nombre del producto</label>
-                    <span class="subtexto-ayuda">Escribe qué artículo es (Ej: Filtro de aire)</span>
+                    <span class="subtexto-ayuda">Escribe qué artículo es (Ej: Vidrio Templado)</span>
                     <input type="text" id="inputNombre" class="caja-entrada" placeholder="Escribe aquí el nombre" required autocomplete="off">
                 </div>
 
@@ -416,7 +416,7 @@
 
     </div>
 
-    <!-- ESTRUCTURA PARA EL REPORTE PDF -->
+    <!-- ESTRUCTURA OCULTA PARA EL REPORTE PDF -->
     <div id="plantillaPdfImpresion">
         <div class="pdf-header">
             <div>
@@ -425,7 +425,7 @@
             </div>
             <div style="text-align: right;">
                 <div style="font-weight: 700; font-size: 12px;" id="pdfFechaHoy">--/--/----</div>
-                <div style="font-size: 10px; color: #64748b;">CoreStock System</div>
+                <div style="font-size: 10px; color: #64748b;">ProFact System</div>
             </div>
         </div>
 
@@ -474,11 +474,11 @@
         </div>
     </div>
 
-    <!-- TODO EL CÓDIGO JAVASCRIPT DENTRO DEL HTML -->
+    <!-- CÓDIGO JAVASCRIPT -->
     <script>
-        let inventario = JSON.parse(localStorage.getItem('facil_inventario')) || [
-            { id: 1, nombre: "Filtros Industriales", inicial: 100, vendidos: 25 },
-            { id: 2, nombre: "Cajas de Cables Cat6", inicial: 40, vendidos: 38 }
+        let inventario = JSON.parse(localStorage.getItem('profact_inventario')) || [
+            { id: 1, nombre: "Vidrio Laminado 6mm", inicial: 50, vendidos: 12 },
+            { id: 2, nombre: "Parabrisas Delantero", inicial: 20, vendidos: 18 }
         ];
 
         let idParaBorrar = null;
@@ -538,7 +538,7 @@
                 contenedorLista.appendChild(tarjeta);
             });
 
-            localStorage.setItem('facil_inventario', JSON.stringify(inventario));
+            localStorage.setItem('profact_inventario', JSON.stringify(inventario));
         }
 
         form.addEventListener('submit', function(e) {
@@ -608,7 +608,7 @@
             document.getElementById('botonGuardarForm').classList.remove('modo-editar');
         }
 
-        /* --- GENERACIÓN DE PDF OPTIMIZADA (SÚPER LIGERA PARA MÓVIL) --- */
+        /* --- GENERACIÓN DE PDF COMPATIBLE CON MÓVILES --- */
         async function generarReportePDF() {
             if (inventario.length === 0) {
                 alert("Primero debes agregar al menos un producto a la lista para generar el reporte.");
@@ -663,7 +663,6 @@
             try {
                 const elemento = document.getElementById('plantillaPdfImpresion');
 
-                // Renderizado con scale: 1 para ahorrar la RAM del celular
                 const canvas = await html2canvas(elemento, {
                     scale: 1,
                     useCORS: true,
@@ -671,7 +670,6 @@
                     backgroundColor: '#ffffff'
                 });
 
-                // Compresión ligera JPEG
                 const imgData = canvas.toDataURL('image/jpeg', 0.75);
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
@@ -683,18 +681,17 @@
 
                 const nombreArchivo = `Balance_Inventario_${fechaActual.toISOString().slice(0,10)}.pdf`;
 
-                // Descarga directa mediante Blob URL
-                const pdfBlob = pdf.output('blob');
-                const blobUrl = URL.createObjectURL(pdfBlob);
+                // Método de guardado nativo de jsPDF
+                pdf.save(nombreArchivo);
 
-                const link = document.createElement('a');
-                link.href = blobUrl;
-                link.download = nombreArchivo;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+                // Plan B para navegadores móviles/WebViews que ocultan las descargas
+                setTimeout(() => {
+                    const blob = pdf.output('blob');
+                    const blobUrl = URL.createObjectURL(blob);
+                    if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                        window.open(blobUrl, '_blank');
+                    }
+                }, 400);
 
             } catch (err) {
                 alert("Error al procesar el PDF: " + err.message);
