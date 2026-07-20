@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistema de Inventario y Balance Fácil</title>
 
-    <!-- Librería externa para convertir HTML a PDF directamente -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&display=swap');
 
@@ -22,7 +19,7 @@
             --color-verde-exito: #15803d;
             --color-rojo-alerta: #b91c1c;
             --color-naranja-editar: #c2410c;
-            --color-pdf: #047857; /* Verde Esmeralda Corporativo */
+            --color-pdf: #047857;
         }
 
         * {
@@ -64,6 +61,29 @@
             font-size: 1.1rem;
             color: var(--texto-gris);
             margin-top: 4px;
+        }
+
+        /* BOTÓN DE EXPORTAR PDF */
+        .boton-pdf {
+            width: 100%;
+            height: 64px;
+            background-color: var(--color-pdf);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(4, 120, 87, 0.35);
+        }
+
+        .boton-pdf:active {
+            transform: scale(0.98);
         }
 
         /* SECCIONES Y FORMULARIO */
@@ -147,29 +167,6 @@
         .boton-principal.modo-editar {
             background-color: var(--color-naranja-editar);
             box-shadow: 0 4px 10px rgba(194, 65, 12, 0.3);
-        }
-
-        /* BOTÓN DE EXPORTAR PDF */
-        .boton-pdf {
-            width: 100%;
-            height: 64px;
-            background-color: var(--color-pdf);
-            color: white;
-            border: none;
-            border-radius: 16px;
-            font-size: 1.15rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 12px rgba(4, 120, 87, 0.35);
-        }
-
-        .boton-pdf:active {
-            transform: scale(0.98);
         }
 
         /* TARJETAS DE PRODUCTO MÓVIL */
@@ -289,63 +286,63 @@
         .btn-no { background: var(--bg-pantalla); color: var(--texto-oscuro); border: 3px solid var(--borde-grueso); }
         .btn-si { background: var(--color-rojo-alerta); color: white; }
 
-        /* --- PLANTILLA OCULTA DEL PDF (SOLO SE USA PARA GENERAR EL REPORTE BONITO) --- */
+        /* --- PLANTILLA DEL PDF PARA IMPRESIÓN --- */
         #plantillaPdfImpresion {
             display: none;
             background-color: #ffffff;
             color: #0f172a;
-            padding: 30px;
+            padding: 20px;
             font-family: 'Lexend', sans-serif;
         }
 
         .pdf-header {
             border-bottom: 3px solid #047857;
-            padding-bottom: 15px;
+            padding-bottom: 12px;
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .pdf-titulo { font-size: 22px; font-weight: 700; color: #047857; }
+        .pdf-titulo { font-size: 20px; font-weight: 700; color: #047857; }
         .pdf-subtitulo { font-size: 12px; color: #475569; }
 
         .pdf-grid-totales {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
         .pdf-caja-total {
             background-color: #f8fafc;
             border: 2px solid #cbd5e1;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             text-align: center;
         }
 
-        .pdf-caja-total .monto { font-size: 20px; font-weight: 700; color: #0f172a; }
-        .pdf-caja-total .etiqueta { font-size: 11px; font-weight: 600; color: #475569; text-transform: uppercase; }
+        .pdf-caja-total .monto { font-size: 18px; font-weight: 700; color: #0f172a; }
+        .pdf-caja-total .etiqueta { font-size: 10px; font-weight: 600; color: #475569; text-transform: uppercase; }
 
         .pdf-tabla {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .pdf-tabla th {
             background-color: #047857;
             color: white;
-            padding: 10px;
-            font-size: 12px;
+            padding: 8px;
+            font-size: 11px;
             text-align: left;
         }
 
         .pdf-tabla td {
-            padding: 10px;
+            padding: 8px;
             border-bottom: 1px solid #e2e8f0;
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .pdf-tabla tr:nth-child(even) {
@@ -353,12 +350,30 @@
         }
 
         .pdf-footer {
-            margin-top: 30px;
-            padding-top: 15px;
+            margin-top: 25px;
+            padding-top: 12px;
             border-top: 1px dashed #cbd5e1;
             text-align: center;
-            font-size: 11px;
+            font-size: 10px;
             color: #64748b;
+        }
+
+        /* ESTILOS PARA LA EXPORTACIÓN/IMPRESIÓN EN ANDROID (APK) */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #plantillaPdfImpresion, #plantillaPdfImpresion * {
+                visibility: visible;
+            }
+            #plantillaPdfImpresion {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 0;
+            }
         }
     </style>
 </head>
@@ -412,7 +427,7 @@
 
     </div>
 
-    <!-- ESTRUCTURA INVISIBLE PARA CONVERTIR EN EL PDF PROFESIONAL -->
+    <!-- ESTRUCTURA PARA EL REPORTE PDF -->
     <div id="plantillaPdfImpresion">
         <div class="pdf-header">
             <div>
@@ -420,12 +435,11 @@
                 <div class="pdf-subtitulo">Informe oficial de entradas, ventas y existencias</div>
             </div>
             <div style="text-align: right;">
-                <div style="font-weight: 700; font-size: 12px;" id="pdfFechaHoy">--/--/----</div>
+                <div style="font-weight: 700; font-size: 11px;" id="pdfFechaHoy">--/--/----</div>
                 <div style="font-size: 10px; color: #64748b;">CoreStock System</div>
             </div>
         </div>
 
-        <!-- RESUMEN DE TOTALES -->
         <div class="pdf-grid-totales">
             <div class="pdf-caja-total">
                 <div class="monto" id="pdfTotalIngresado">0</div>
@@ -441,7 +455,6 @@
             </div>
         </div>
 
-        <!-- TABLA DETALLADA -->
         <table class="pdf-tabla">
             <thead>
                 <tr>
@@ -452,13 +465,11 @@
                     <th style="text-align: center;">% Salida</th>
                 </tr>
             </thead>
-            <tbody id="pdfTablaCuerpo">
-                <!-- Se llena automáticamente -->
-            </tbody>
+            <tbody id="pdfTablaCuerpo"></tbody>
         </table>
 
         <div class="pdf-footer">
-            Este documento representa el cuadre de inventarios y balance de movimiento físico de mercancía al momento de su impresión.
+            Este documento representa el cuadre de inventarios y balance de movimiento físico de mercancía al momento de su emisión.
         </div>
     </div>
 
@@ -540,7 +551,6 @@
             localStorage.setItem('facil_inventario', JSON.stringify(inventario));
         }
 
-        // GUARDAR / EDITAR
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -608,14 +618,13 @@
             document.getElementById('botonGuardarForm').classList.remove('modo-editar');
         }
 
-        // --- FUNCIÓN PARA GENERAR EL PDF LIMPIO Y BONITO ---
+        /* --- EXPORTACIÓN COMPATIBLE CON APK ANDROID Y NAVEGADORES --- */
         window.generarReportePDF = function() {
             if (inventario.length === 0) {
                 alert("Primero debes agregar al menos un producto a la lista para generar el reporte.");
                 return;
             }
 
-            // 1. Calcular Totales Generales de la Empresa
             let totalIngresado = 0;
             let totalVendidos = 0;
             let totalDisponible = 0;
@@ -629,7 +638,6 @@
                 totalVendidos += prod.vendidos;
                 totalDisponible += disponible;
 
-                // Porcentaje de rotación
                 const porcentajeVenta = prod.inicial > 0
                     ? ((prod.vendidos / prod.inicial) * 100).toFixed(0)
                     : 0;
@@ -645,7 +653,6 @@
                 tablaCuerpo.appendChild(fila);
             });
 
-            // 2. Colocar los valores en la plantilla
             document.getElementById('pdfTotalIngresado').innerText = totalIngresado;
             document.getElementById('pdfTotalVendidos').innerText = totalVendidos;
             document.getElementById('pdfTotalDisponible').innerText = totalDisponible;
@@ -657,21 +664,8 @@
             });
             document.getElementById('pdfFechaHoy').innerText = fechaFormateada;
 
-            // 3. Generar el PDF mediante la librería
-            const elementoPDF = document.getElementById('plantillaPdfImpresion');
-            elementoPDF.style.display = 'block'; // Mostrar momentáneamente para captura
-
-            const opcionesConfig = {
-                margin:       10,
-                filename:     `Balance_Inventario_${fechaActual.toISOString().slice(0,10)}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opcionesConfig).from(elementoPDF).save().then(() => {
-                elementoPDF.style.display = 'none'; // Ocultar plantilla nuevamente
-            });
+            // Invoca la vista del sistema para Guardar como PDF / Imprimir en Android
+            window.print();
         }
 
         dibujarLista();
