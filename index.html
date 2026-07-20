@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ProFact - Control de Inventario</title>
 
-    <!-- LIBRERÍAS PARA GENERACIÓN DE PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&display=swap');
 
@@ -290,15 +286,12 @@
         .btn-no { background: var(--bg-pantalla); color: var(--texto-oscuro); border: 3px solid var(--borde-grueso); }
         .btn-si { background: var(--color-rojo-alerta); color: white; }
 
-        /* --- PLANTILLA DEL PDF OCULTA --- */
+        /* --- PLANTILLA DEL PDF OCULTA EN PANTALLA --- */
         #plantillaPdfImpresion {
-            position: absolute;
-            left: -9999px;
-            top: -9999px;
-            width: 750px;
+            display: none;
             background-color: #ffffff;
             color: #0f172a;
-            padding: 30px;
+            padding: 20px;
             font-family: 'Lexend', sans-serif;
         }
 
@@ -311,26 +304,26 @@
             align-items: center;
         }
 
-        .pdf-titulo { font-size: 22px; font-weight: 700; color: #047857; }
-        .pdf-subtitulo { font-size: 13px; color: #475569; }
+        .pdf-titulo { font-size: 20px; font-weight: 700; color: #047857; }
+        .pdf-subtitulo { font-size: 12px; color: #475569; }
 
         .pdf-grid-totales {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 20px;
         }
 
         .pdf-caja-total {
             background-color: #f8fafc;
             border: 2px solid #cbd5e1;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             text-align: center;
         }
 
-        .pdf-caja-total .monto { font-size: 20px; font-weight: 700; color: #0f172a; }
-        .pdf-caja-total .etiqueta { font-size: 11px; font-weight: 600; color: #475569; text-transform: uppercase; }
+        .pdf-caja-total .monto { font-size: 18px; font-weight: 700; color: #0f172a; }
+        .pdf-caja-total .etiqueta { font-size: 10px; font-weight: 600; color: #475569; text-transform: uppercase; }
 
         .pdf-tabla {
             width: 100%;
@@ -341,15 +334,15 @@
         .pdf-tabla th {
             background-color: #047857;
             color: white;
-            padding: 10px;
-            font-size: 12px;
+            padding: 8px;
+            font-size: 11px;
             text-align: left;
         }
 
         .pdf-tabla td {
-            padding: 10px;
+            padding: 8px;
             border-bottom: 1px solid #e2e8f0;
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .pdf-tabla tr:nth-child(even) {
@@ -361,8 +354,22 @@
             padding-top: 12px;
             border-top: 1px dashed #cbd5e1;
             text-align: center;
-            font-size: 11px;
+            font-size: 10px;
             color: #64748b;
+        }
+
+        /* --- REGLAS EXCLUSIVAS PARA GENERAR PDF O IMPRIMIR --- */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .contenedor, .pantalla-bloqueo {
+                display: none !important;
+            }
+            #plantillaPdfImpresion {
+                display: block !important;
+            }
         }
     </style>
 </head>
@@ -377,7 +384,7 @@
 
         <!-- BOTÓN PRINCIPAL -->
         <button class="boton-pdf" id="btnDescargarPDF" onclick="generarReportePDF()">
-            📄 ABRIR BALANCE EN PDF
+            📄 GENERAR / GUARDAR PDF
         </button>
 
         <!-- FORMULARIO -->
@@ -416,7 +423,7 @@
 
     </div>
 
-    <!-- ESTRUCTURA OCULTA PARA EL REPORTE PDF -->
+    <!-- ESTRUCTURA EXCLUSIVA PARA EL REPORTE EN PDF -->
     <div id="plantillaPdfImpresion">
         <div class="pdf-header">
             <div>
@@ -424,8 +431,8 @@
                 <div class="pdf-subtitulo">Informe oficial de entradas, ventas y existencias</div>
             </div>
             <div style="text-align: right;">
-                <div style="font-weight: 700; font-size: 12px;" id="pdfFechaHoy">--/--/----</div>
-                <div style="font-size: 10px; color: #64748b;">ProFact System</div>
+                <div style="font-weight: 700; font-size: 11px;" id="pdfFechaHoy">--/--/----</div>
+                <div style="font-size: 9px; color: #64748b;">ProFact System</div>
             </div>
         </div>
 
@@ -474,7 +481,7 @@
         </div>
     </div>
 
-    <!-- CÓDIGO JAVASCRIPT CON APERTURA DIRECTA -->
+    <!-- CÓDIGO JAVASCRIPT -->
     <script>
         let inventario = JSON.parse(localStorage.getItem('profact_inventario')) || [
             { id: 1, nombre: "Vidrio Laminado 6mm", inicial: 50, vendidos: 12 },
@@ -608,25 +615,12 @@
             document.getElementById('botonGuardarForm').classList.remove('modo-editar');
         }
 
-        /* --- APERTURA DIRECTA DE PDF EN NAVEGADOR --- */
-        async function generarReportePDF() {
+        /* --- IMPRESIÓN / GENERACIÓN DE PDF NATIVA COMPATIBLE CON WEBVIEW --- */
+        function generarReportePDF() {
             if (inventario.length === 0) {
                 alert("Primero debes agregar al menos un producto a la lista para generar el reporte.");
                 return;
             }
-
-            // 1. Abrimos una pestaña en blanco INMEDIATAMENTE tras el click del usuario
-            // Esto evita que el bloqueador de pop-ups de Android/iOS la cancele.
-            const ventanaPDF = window.open('', '_blank');
-            if (ventanaPDF) {
-                ventanaPDF.document.write('<p style="font-family:sans-serif; padding:20px;">Cargando reporte PDF de ProFact...</p>');
-            }
-
-            const btn = document.getElementById('btnDescargarPDF');
-            btn.innerText = "⏳ GENERANDO DOCUMENTO...";
-            btn.disabled = true;
-
-            await new Promise(resolve => setTimeout(resolve, 100));
 
             let totalIngresado = 0;
             let totalVendidos = 0;
@@ -667,43 +661,8 @@
             });
             document.getElementById('pdfFechaHoy').innerText = fechaFormateada;
 
-            try {
-                const elemento = document.getElementById('plantillaPdfImpresion');
-
-                const canvas = await html2canvas(elemento, {
-                    scale: 1,
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: '#ffffff'
-                });
-
-                const imgData = canvas.toDataURL('image/jpeg', 0.8);
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-
-                // 2. Convertimos el PDF a una URL de Blob y redirigimos la pestaña abierta
-                const pdfUrl = pdf.output('bloburl');
-
-                if (ventanaPDF) {
-                    ventanaPDF.location.href = pdfUrl;
-                } else {
-                    // Si el navegador bloqueó la ventana emergente, usamos la pestaña actual
-                    window.location.href = pdfUrl;
-                }
-
-            } catch (err) {
-                if (ventanaPDF) ventanaPDF.close();
-                alert("Error al procesar el PDF: " + err.message);
-                console.error(err);
-            } finally {
-                btn.innerText = "📄 ABRIR BALANCE EN PDF";
-                btn.disabled = false;
-            }
+            // Abre el visor/diálogo de impresión nativo de Android/iOS
+            window.print();
         }
 
         dibujarLista();
