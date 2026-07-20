@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Stock Control - Sistema de Inventario</title>
+    <!-- Iconos limpios de Google Material Design -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap');
+
+        /* --- CONFIGURACIÓN DE PALETAS VARIABLES (TEMA CLARO POR DEFECTO) --- */
+        :root {
+            --bg-principal: #f8fafc;       /* Gris platino muy claro */
+            --bg-tarjeta: #ffffff;         /* Blanco puro */
+            --texto-primario: #0f172a;     /* Azul marino oscuro casi negro */
+            --texto-secundario: #475569;   /* Gris pizarra para textos secundarios */
+            --borde: #e2e8f0;              /* Gris suave para líneas divisorias */
+            --bg-tabla-header: #f1f5f9;    /* Fondo del encabezado de tabla */
+            --bg-row-hover: #f8fafc;       /* Color de fila al pasar el cursor */
+
+            --color-primario: #0284c7;     /* Azul corporativo estable */
+            --color-primario-hover: #0369a1;
+            --color-exito: #16a34a;
+            --color-alerta: #dc2626;
+            --color-editar: #ea580c;
+        }
+
+        /* --- CONFIGURACIÓN PARA MODO OSCURO SOBRIO (NO NEÓN) --- */
+        [data-theme="dark"] {
+            --bg-principal: #0f172a;       /* Azul marino ultra oscuro */
+            --bg-tarjeta: #1e293b;         /* Azul grisáceo profundo */
+            --texto-primario: #f8fafc;     /* Blanco grisáceo de alta legibilidad */
+            --texto-secundario: #94a3b8;   /* Gris claro atenuado */
+            --borde: #334155;              /* Líneas divisorias oscuras */
+            --bg-tabla-header: #1e293b;    /* Fondo oscuro para la cabecera */
+            --bg-row-hover: #1e293b;       /* Resaltado de fila sutil */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-principal);
+            color: var(--texto-primario);
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s ease, color 0.3s ease; /* Transición suave de color */
+        }
+
+        /* --- CONTENEDOR ESTRUCTURAL --- */
+        .app-wrapper {
+            width: 100%;
+            max-width: 1240px;
+        }
+
+        /* --- ENCABEZADO DE LA EMPRESA --- */
+        .enterprise-header {
+            margin-bottom: 32px;
+            border-bottom: 2px solid var(--borde);
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--texto-primario);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-title span.logo-icon {
+            color: var(--color-primario);
+            font-size: 2rem;
+        }
+
+        /* --- BOTÓN DINÁMICO DE CAMBIO DE TEMA --- */
+        .theme-toggle-btn {
+            background-color: var(--bg-tarjeta);
+            border: 1px solid var(--borde);
+            color: var(--texto-primario);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background-color: var(--bg-tabla-header);
+            transform: translateY(-1px);
+        }
+
+        /* --- DASHBOARD LAYOUT --- */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 950px) {
+            .grid-layout {
+                grid-template-columns: 380px 1fr;
+            }
+        }
+
+        /* --- TARJETAS CONTENEDORAS COMPACTAS --- */
+        .card {
+            background-color: var(--bg-tarjeta);
+            border: 1px solid var(--borde);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--texto-primario);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- FORMULARIO LIMPIO --- */
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--texto-secundario);
+            margin-bottom: 6px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            border: 1px solid var(--borde);
+            border-radius: 8px;
+            background-color: var(--bg-principal);
+            color: var(--texto-primario);
+            outline: none;
+            transition: all 0.15s ease-in-out;
+        }
+
+        .input-control:focus {
+            border-color: var(--color-primario);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        /* --- BOTONES DE CONTROL --- */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-submit {
+            background-color: var(--color-primario);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--color-primario-hover);
+        }
+
+        .btn-submit.edit-mode {
+            background-color: var(--color-editar);
+        }
+
+        /* --- TABLA DE DATOS PROFESIONAL --- */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: var(--bg-tabla-header);
+            color: var(--texto-secundario);
+            padding: 14px 16px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--borde);
+            transition: background-color 0.3s ease;
+        }
+
+        tr {
+            border-bottom: 1px solid var(--borde);
+            transition: background-color 0.1s ease;
+        }
+
+        tr:hover {
+            background-color: var(--bg-row-hover);
+        }
+
+        td {
+            padding: 16px;
+            color: var(--texto-primario);
+            vertical-align: middle;
+        }
+
+        /* --- PÍLDORAS / BADGES DE DATOS --- */
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .pill-neutral {
+            background-color: var(--bg-principal);
+            color: var(--texto-secundario);
+            border: 1px solid var(--borde);
+        }
+
+        .pill-stock-ok {
+            background-color: rgba(22, 163, 74, 0.15);
+            color: #16a34a;
+        }
+
+        .pill-stock-low {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        /* --- BOTONES DE ACCIONES EN TABLA --- */
+        .action-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-table-action {
+            background-color: var(--bg-tarjeta);
+            border: 1px solid var(--borde);
+            border-radius: 6px;
+            padding: 6px;
+            cursor: pointer;
+            color: var(--texto-secundario);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s ease;
+        }
+
+        .btn-table-action:hover {
+            border-color: var(--texto-secundario);
+            color: var(--texto-primario);
+            background-color: var(--bg-principal);
+        }
+
+        .btn-table-delete:hover {
+            border-color: var(--color-alerta);
+            color: var(--color-alerta);
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-wrapper">
+
+        <!-- ENCABEZADO CORPORATIVO CON BOTÓN DE MODO OSCURO -->
+        <header class="enterprise-header">
+            <div class="brand-title">
+                <span class="material-icons-round logo-icon">layers</span>
+                CoreStock Enterprise
+            </div>
+
+            <!-- Botón del Tema -->
+            <button id="themeToggle" class="theme-toggle-btn">
+                <span id="themeIcon" class="material-icons-round">dark_mode</span>
+                <span id="themeText">Modo Oscuro</span>
+            </button>
+        </header>
+
+        <div class="grid-layout">
+
+            <!-- PANEL: GESTIÓN / REGISTRO -->
+            <div class="card">
+                <div class="card-title" id="formTitle">
+                    <span class="material-icons-round">add_circle_outline</span> Registro de Artículo
+                </div>
+
+                <form id="productForm">
+                    <input type="hidden" id="productId">
+
+                    <label class="form-label" for="prodName">Nombre del Producto</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="prodName" class="input-control" placeholder="Ej. Filtro Industrial" required>
+                    </div>
+
+                    <label class="form-label" for="prodInitial">Stock Inicial de Almacén</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="prodInitial" class="input-control" min="0" placeholder="0" required>
+                    </div>
+
+                    <label class="form-label" for="prodSold">Despachos / Ventas</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="prodSold" class="input-control" min="0" placeholder="0" required>
+                    </div>
+
+                    <button type="submit" id="saveBtn" class="btn btn-submit">
+                        <span class="material-icons-round" style="font-size: 18px;">save</span>
+                        <span id="btnText">Confirmar Registro</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- PANEL: TABLA DE INVENTARIO -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="material-icons-round">table_chart</span> Control Operativo de Existencias
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Descripción del Item</th>
+                                <th>Stock Inicial</th>
+                                <th>Unidades Vendidas</th>
+                                <th>Existencia Actual</th>
+                                <th style="text-align: right;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTable">
+                            <!-- Inyección dinámica -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- --- LÓGICA DE CONTROL --- -->
+    <script>
+        // Data corporativa inicial de simulación (Guardada en LocalStorage)
+        let inventario = JSON.parse(localStorage.getItem('enterprise_inventario')) || [
+            { id: 1, nombre: "Cable Convertidor de Fibra Óptica", inicial: 500, vendidos: 120 },
+            { id: 2, nombre: "Módulo Servidor Rack 2U", inicial: 15, vendidos: 12 },
+            { id: 3, nombre: "Switch Administrable de 24 Puertos", inicial: 40, vendidos: 0 }
+        ];
+
+        const tableBody = document.getElementById('inventoryTable');
+        const form = document.getElementById('productForm');
+
+        // --- SISTEMA INTERACTIVO DE MODO OSCURO / CLARO ---
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+
+        // Leer preferencia guardada del tema
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeIcon.innerText = 'light_mode';
+            themeText.innerText = 'Modo Claro';
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            let theme = document.documentElement.getAttribute('data-theme');
+
+            if (theme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeIcon.innerText = 'dark_mode';
+                themeText.innerText = 'Modo Oscuro';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeIcon.innerText = 'light_mode';
+                themeText.innerText = 'Modo Claro';
+            }
+        });
+
+        // --- MANEJO DEL INVENTARIO ---
+        function renderTable() {
+            tableBody.innerHTML = '';
+
+            inventario.forEach(prod => {
+                const disponible = prod.inicial - prod.vendidos;
+                const esBajo = disponible <= 5 || disponible <= (prod.inicial * 0.15);
+                const pillClass = esBajo ? 'status-pill pill-stock-low' : 'status-pill pill-stock-ok';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="font-weight: 500;">${prod.nombre}</td>
+                    <td><span class="status-pill pill-neutral">${prod.inicial} u.</span></td>
+                    <td><span class="status-pill pill-neutral">${prod.vendidos} u.</span></td>
+                    <td><span class="${pillClass}">${disponible} u. disponibles</span></td>
+                    <td>
+                        <div class="action-group" style="justify-content: flex-end;">
+                            <button class="btn-table-action" onclick="cargarEditar(${prod.id})" title="Editar registro">
+                                <span class="material-icons-round" style="font-size: 18px;">edit</span>
+                            </button>
+                            <button class="btn-table-action btn-table-delete" onclick="eliminarProducto(${prod.id})" title="Eliminar registro">
+                                <span class="material-icons-round" style="font-size: 18px;">delete_outline</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            localStorage.setItem('enterprise_inventario', JSON.stringify(inventario));
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('productId').value;
+            const nombre = document.getElementById('prodName').value;
+            const inicial = parseInt(document.getElementById('prodInitial').value);
+            const vendidos = parseInt(document.getElementById('prodSold').value);
+
+            if (id) {
+                const prod = inventario.find(p => p.id == id);
+                prod.nombre = nombre;
+                prod.inicial = inicial;
+                prod.vendidos = vendidos;
+            } else {
+                const nuevoProd = {
+                    id: Date.now(),
+                    nombre: nombre,
+                    inicial: inicial,
+                    vendidos: vendidos
+                };
+                inventario.push(nuevoProd);
+            }
+
+            resetForm();
+            renderTable();
+        });
+
+        window.cargarEditar = function(id) {
+            const prod = inventario.find(p => p.id == id);
+
+            document.getElementById('productId').value = prod.id;
+            document.getElementById('prodName').value = prod.nombre;
+            document.getElementById('prodInitial').value = prod.inicial;
+            document.getElementById('prodSold').value = prod.vendidos;
+
+            document.getElementById('formTitle').innerHTML = '<span class="material-icons-round">edit</span> Modificar Registro';
+            document.getElementById('btnText').innerText = "Actualizar Item";
+            document.getElementById('saveBtn').classList.add('edit-mode');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.eliminarProducto = function(id) {
+            if(confirm("¿Confirmar la eliminación permanente de este artículo de la base de datos?")) {
+                inventario = inventario.filter(p => p.id !== id);
+                resetForm();
+                renderTable();
+            }
+        }
+
+        function resetForm() {
+            form.reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('formTitle').innerHTML = '<span class="material-icons-round">add_circle_outline</span> Registro de Artículo';
+            document.getElementById('btnText').innerText = "Confirmar Registro";
+            document.getElementById('saveBtn').classList.remove('edit-mode');
+        }
+
+        renderTable();
+    </script>
+</body>
+</html>
