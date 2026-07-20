@@ -474,6 +474,7 @@
         </div>
     </div>
 
+    <!-- TODO EL CÓDIGO JAVASCRIPT DENTRO DEL HTML -->
     <script>
         let inventario = JSON.parse(localStorage.getItem('facil_inventario')) || [
             { id: 1, nombre: "Filtros Industriales", inicial: 100, vendidos: 25 },
@@ -607,7 +608,7 @@
             document.getElementById('botonGuardarForm').classList.remove('modo-editar');
         }
 
-        /* --- GENERACIÓN DE PDF NATIVA COMPATIBLE CON APK ANDROID Y NAVEGADOR --- */
+        /* --- GENERACIÓN DE PDF OPTIMIZADA (SÚPER LIGERA PARA MÓVIL) --- */
         async function generarReportePDF() {
             if (inventario.length === 0) {
                 alert("Primero debes agregar al menos un producto a la lista para generar el reporte.");
@@ -617,6 +618,8 @@
             const btn = document.getElementById('btnDescargarPDF');
             btn.innerText = "⏳ GENERANDO DOCUMENTO...";
             btn.disabled = true;
+
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             let totalIngresado = 0;
             let totalVendidos = 0;
@@ -660,42 +663,41 @@
             try {
                 const elemento = document.getElementById('plantillaPdfImpresion');
 
+                // Renderizado con scale: 1 para ahorrar la RAM del celular
                 const canvas = await html2canvas(elemento, {
-                    scale: 2,
+                    scale: 1,
                     useCORS: true,
-                    logging: false
+                    logging: false,
+                    backgroundColor: '#ffffff'
                 });
 
-                const imgData = canvas.toDataURL('image/png');
+                // Compresión ligera JPEG
+                const imgData = canvas.toDataURL('image/jpeg', 0.75);
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
 
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
 
                 const nombreArchivo = `Balance_Inventario_${fechaActual.toISOString().slice(0,10)}.pdf`;
 
-                // DETECCIÓN Y ADAPTACIÓN PARA APK / ANDROID WEBVIEW
-                const isAndroidApp = /Android|WebView/i.test(navigator.userAgent);
+                // Descarga directa mediante Blob URL
+                const pdfBlob = pdf.output('blob');
+                const blobUrl = URL.createObjectURL(pdfBlob);
 
-                if (isAndroidApp) {
-                    // Forzar redirección de datos base64 para que WebView capture el Data URI
-                    const pdfDataUri = pdf.output('datauristring');
-                    const link = document.createElement('a');
-                    link.href = pdfDataUri;
-                    link.download = nombreArchivo;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                } else {
-                    // Descarga estándar para navegador web
-                    pdf.save(nombreArchivo);
-                }
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = nombreArchivo;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
 
             } catch (err) {
-                alert("Error al procesar el archivo en el dispositivo.");
+                alert("Error al procesar el PDF: " + err.message);
                 console.error(err);
             } finally {
                 btn.innerText = "📄 DESCARGAR BALANCE EN PDF";
