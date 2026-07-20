@@ -2,467 +2,430 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Stock Control - Sistema de Inventario</title>
-    <!-- Iconos limpios de Google Material Design -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sistema de Inventario Fácil</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&display=swap');
 
-        /* --- CONFIGURACIÓN DE PALETAS VARIABLES (TEMA CLARO POR DEFECTO) --- */
         :root {
-            --bg-principal: #f8fafc;       /* Gris platino muy claro */
-            --bg-tarjeta: #ffffff;         /* Blanco puro */
-            --texto-primario: #0f172a;     /* Azul marino oscuro casi negro */
-            --texto-secundario: #475569;   /* Gris pizarra para textos secundarios */
-            --borde: #e2e8f0;              /* Gris suave para líneas divisorias */
-            --bg-tabla-header: #f1f5f9;    /* Fondo del encabezado de tabla */
-            --bg-row-hover: #f8fafc;       /* Color de fila al pasar el cursor */
+            --bg-pantalla: #f1f5f9;
+            --bg-blanco: #ffffff;
+            --texto-oscuro: #0f172a;
+            --texto-gris: #475569;
+            --borde-grueso: #cbd5e1;
 
-            --color-primario: #0284c7;     /* Azul corporativo estable */
-            --color-primario-hover: #0369a1;
-            --color-exito: #16a34a;
-            --color-alerta: #dc2626;
-            --color-editar: #ea580c;
-        }
-
-        /* --- CONFIGURACIÓN PARA MODO OSCURO SOBRIO (NO NEÓN) --- */
-        [data-theme="dark"] {
-            --bg-principal: #0f172a;       /* Azul marino ultra oscuro */
-            --bg-tarjeta: #1e293b;         /* Azul grisáceo profundo */
-            --texto-primario: #f8fafc;     /* Blanco grisáceo de alta legibilidad */
-            --texto-secundario: #94a3b8;   /* Gris claro atenuado */
-            --borde: #334155;              /* Líneas divisorias oscuras */
-            --bg-tabla-header: #1e293b;    /* Fondo oscuro para la cabecera */
-            --bg-row-hover: #1e293b;       /* Resaltado de fila sutil */
+            /* Colores de alta visibilidad */
+            --color-azul-boton: #1d4ed8;
+            --color-verde-exito: #15803d;
+            --color-rojo-alerta: #b91c1c;
+            --color-naranja-editar: #c2410c;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Lexend', sans-serif; /* Tipografía ultra legible */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-principal);
-            color: var(--texto-primario);
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background-color 0.3s ease, color 0.3s ease; /* Transición suave de color */
+            background-color: var(--bg-pantalla);
+            color: var(--texto-oscuro);
+            padding: 16px;
+            min-height: 100vh;
         }
 
-        /* --- CONTENEDOR ESTRUCTURAL --- */
-        .app-wrapper {
+        .contenedor {
             width: 100%;
-            max-width: 1240px;
+            max-width: 600px; /* Centrado y cómodo para manejar con una sola mano */
+            margin: 0 auto;
         }
 
-        /* --- ENCABEZADO DE LA EMPRESA --- */
-        .enterprise-header {
-            margin-bottom: 32px;
-            border-bottom: 2px solid var(--borde);
-            padding-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* --- ENCABEZADO SENCILLO --- */
+        .encabezado {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid var(--borde-grueso);
         }
 
-        .brand-title {
-            font-size: 1.75rem;
+        .encabezado h1 {
+            font-size: 1.8rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
-            color: var(--texto-primario);
+            color: var(--color-azul-boton);
+        }
+
+        .encabezado p {
+            font-size: 1.1rem;
+            color: var(--texto-gris);
+            margin-top: 4px;
+        }
+
+        /* --- SECCIONES / TARJETAS PRINCIPALES --- */
+        .seccion-blanca {
+            background-color: var(--bg-blanco);
+            border: 3px solid var(--borde-grueso);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .titulo-seccion {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--texto-oscuro);
+            border-left: 6px solid var(--color-azul-boton);
+            padding-left: 10px;
+        }
+
+        /* --- FORMULARIO PASO A PASO --- */
+        .bloque-formulario {
+            margin-bottom: 20px;
+        }
+
+        .etiqueta-grande {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--texto-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .subtexto-ayuda {
+            font-size: 0.95rem;
+            color: var(--texto-gris);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .caja-entrada {
+            width: 100%;
+            height: 54px; /* Altura grande para que sea fácil de pulsar */
+            padding: 0 16px;
+            font-size: 1.2rem; /* Letra grande dentro de la caja */
+            font-weight: 500;
+            border: 3px solid var(--borde-grueso);
+            border-radius: 12px;
+            background-color: #f8fafc;
+            color: var(--texto-oscuro);
+            outline: none;
+        }
+
+        .caja-entrada:focus {
+            border-color: var(--color-azul-boton);
+            background-color: #ffffff;
+        }
+
+        /* --- BOTONES GRANDES --- */
+        .boton-principal {
+            width: 100%;
+            height: 60px; /* Botón gigante */
+            border: none;
+            border-radius: 14px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            background-color: var(--color-verde-exito); /* Color verde que amigablemente significa "Listo / Guardar" */
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(21, 128, 61, 0.3);
             display: flex;
             align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .boton-principal:active {
+            transform: scale(0.98);
+        }
+
+        .boton-principal.modo-editar {
+            background-color: var(--color-naranja-editar);
+            box-shadow: 0 4px 10px rgba(194, 65, 12, 0.3);
+        }
+
+        /* --- DISEÑO DE LISTA DE PRODUCTOS (NO TABLAS) --- */
+        .tarjeta-producto {
+            background-color: var(--bg-blanco);
+            border: 3px solid var(--borde-grueso);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .nombre-producto-lista {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--texto-oscuro);
+            margin-bottom: 12px;
+            text-transform: capitalize;
+        }
+
+        .contenedor-datos-stock {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .dato-cuadrado {
+            background-color: #f8fafc;
+            border: 2px solid var(--borde-grueso);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .dato-cuadrado .numero {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--texto-oscuro);
+        }
+
+        .dato-cuadrado .texto {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--texto-gris);
+        }
+
+        /* Avisos de Stock Legibles */
+        .alerta-disponibilidad {
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .alerta-ok {
+            background-color: #dcfce7;
+            color: #15803d;
+            border: 2px solid #bbf7d0;
+        }
+
+        .alerta-baja {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border: 2px solid #fecaca;
+        }
+
+        /* Botones de acción separados e identificables */
+        .bloque-botones-accion {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
 
-        .brand-title span.logo-icon {
-            color: var(--color-primario);
-            font-size: 2rem;
-        }
-
-        /* --- BOTÓN DINÁMICO DE CAMBIO DE TEMA --- */
-        .theme-toggle-btn {
-            background-color: var(--bg-tarjeta);
-            border: 1px solid var(--borde);
-            color: var(--texto-primario);
-            padding: 8px 16px;
-            border-radius: 8px;
+        .boton-accion {
+            height: 48px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
             cursor: pointer;
-            display: inline-flex;
+            border: 3px solid var(--borde-grueso);
+            background-color: var(--bg-pantalla);
+            color: var(--texto-oscuro);
+        }
+
+        .boton-modificar-accion {
+            border-color: #fdba74;
+            background-color: #fff7ed;
+            color: #c2410c;
+        }
+
+        .boton-borrar-accion {
+            border-color: #fca5a5;
+            background-color: #fef2f2;
+            color: #b91c1c;
+        }
+
+        /* --- VENTANA CONFIRMACIÓN GRANDE --- */
+        .pantalla-bloqueo {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transition: all 0.2s ease;
-        }
-
-        .theme-toggle-btn:hover {
-            background-color: var(--bg-tabla-header);
-            transform: translateY(-1px);
-        }
-
-        /* --- DASHBOARD LAYOUT --- */
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 24px;
-        }
-
-        @media (min-width: 950px) {
-            .grid-layout {
-                grid-template-columns: 380px 1fr;
-            }
-        }
-
-        /* --- TARJETAS CONTENEDORAS COMPACTAS --- */
-        .card {
-            background-color: var(--bg-tarjeta);
-            border: 1px solid var(--borde);
-            border-radius: 12px;
+            justify-content: center;
             padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            z-index: 999;
+            display: none; /* Oculto por defecto */
         }
 
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: var(--texto-primario);
+        .pantalla-bloqueo.mostrar {
             display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        /* --- FORMULARIO LIMPIO --- */
-        .form-label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--texto-secundario);
-            margin-bottom: 6px;
-        }
-
-        .input-wrapper {
-            position: relative;
-            margin-bottom: 18px;
-        }
-
-        .input-control {
+        .ventana-alerta {
+            background: white;
+            border: 4px solid var(--borde-grueso);
+            border-radius: 20px;
+            padding: 24px;
             width: 100%;
-            padding: 10px 14px;
-            font-size: 0.95rem;
-            border: 1px solid var(--borde);
-            border-radius: 8px;
-            background-color: var(--bg-principal);
-            color: var(--texto-primario);
-            outline: none;
-            transition: all 0.15s ease-in-out;
+            max-width: 400px;
+            text-align: center;
         }
 
-        .input-control:focus {
-            border-color: var(--color-primario);
-            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-        }
+        .ventana-alerta h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+        .ventana-alerta p { font-size: 1.1rem; color: var(--texto-gris); margin-bottom: 24px; }
 
-        /* --- BOTONES DE CONTROL --- */
-        .btn {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid transparent;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.15s ease;
-        }
-
-        .btn-submit {
-            background-color: var(--color-primario);
-            color: white;
-        }
-
-        .btn-submit:hover {
-            background-color: var(--color-primario-hover);
-        }
-
-        .btn-submit.edit-mode {
-            background-color: var(--color-editar);
-        }
-
-        /* --- TABLA DE DATOS PROFESIONAL --- */
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.95rem;
-        }
-
-        th {
-            background-color: var(--bg-tabla-header);
-            color: var(--texto-secundario);
-            padding: 14px 16px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid var(--borde);
-            transition: background-color 0.3s ease;
-        }
-
-        tr {
-            border-bottom: 1px solid var(--borde);
-            transition: background-color 0.1s ease;
-        }
-
-        tr:hover {
-            background-color: var(--bg-row-hover);
-        }
-
-        td {
-            padding: 16px;
-            color: var(--texto-primario);
-            vertical-align: middle;
-        }
-
-        /* --- PÍLDORAS / BADGES DE DATOS --- */
-        .status-pill {
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .pill-neutral {
-            background-color: var(--bg-principal);
-            color: var(--texto-secundario);
-            border: 1px solid var(--borde);
-        }
-
-        .pill-stock-ok {
-            background-color: rgba(22, 163, 74, 0.15);
-            color: #16a34a;
-        }
-
-        .pill-stock-low {
-            background-color: rgba(220, 38, 38, 0.15);
-            color: #dc2626;
-            font-weight: 600;
-        }
-
-        /* --- BOTONES DE ACCIONES EN TABLA --- */
-        .action-group {
-            display: flex;
-            gap: 6px;
-        }
-
-        .btn-table-action {
-            background-color: var(--bg-tarjeta);
-            border: 1px solid var(--borde);
-            border-radius: 6px;
-            padding: 6px;
-            cursor: pointer;
-            color: var(--texto-secundario);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.1s ease;
-        }
-
-        .btn-table-action:hover {
-            border-color: var(--texto-secundario);
-            color: var(--texto-primario);
-            background-color: var(--bg-principal);
-        }
-
-        .btn-table-delete:hover {
-            border-color: var(--color-alerta);
-            color: var(--color-alerta);
-            background-color: rgba(220, 38, 38, 0.05);
-        }
+        .botones-alerta { display: flex; flex-direction: column; gap: 12px; }
+        .btn-alerta-opcion { width: 100%; height: 50px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; border: none; cursor: pointer; }
+        .btn-no { background: var(--bg-pantalla); color: var(--texto-oscuro); border: 3px solid var(--borde-grueso); }
+        .btn-si { background: var(--color-rojo-alerta); color: white; }
     </style>
 </head>
 <body>
 
-    <div class="app-wrapper">
+    <div class="contenedor">
 
-        <!-- ENCABEZADO CORPORATIVO CON BOTÓN DE MODO OSCURO -->
-        <header class="enterprise-header">
-            <div class="brand-title">
-                <span class="material-icons-round logo-icon">layers</span>
-                CoreStock Enterprise
-            </div>
-
-            <!-- Botón del Tema -->
-            <button id="themeToggle" class="theme-toggle-btn">
-                <span id="themeIcon" class="material-icons-round">dark_mode</span>
-                <span id="themeText">Modo Oscuro</span>
-            </button>
+        <!-- ENCABEZADO SIMPLE -->
+        <header class="encabezado">
+            <h1>Inventario CoreStock</h1>
+            <p>Control de productos de forma fácil</p>
         </header>
 
-        <div class="grid-layout">
+        <!-- SECCIÓN 1: FORMULARIO PARA AGREGAR -->
+        <div class="seccion-blanca">
+            <div class="titulo-seccion" id="textoTituloFormulario">Anotar producto nuevo</div>
 
-            <!-- PANEL: GESTIÓN / REGISTRO -->
-            <div class="card">
-                <div class="card-title" id="formTitle">
-                    <span class="material-icons-round">add_circle_outline</span> Registro de Artículo
+            <form id="formularioInventario">
+                <input type="hidden" id="idProductoOculto">
+
+                <div class="bloque-formulario">
+                    <label class="etiqueta-grande" for="inputNombre">Paso 1: Nombre del producto</label>
+                    <span class="subtexto-ayuda">Escribe qué artículo es (Ej: Filtro de aire)</span>
+                    <input type="text" id="inputNombre" class="caja-entrada" placeholder="Escribe aquí el nombre" required autocomplete="off">
                 </div>
 
-                <form id="productForm">
-                    <input type="hidden" id="productId">
+                <div class="bloque-formulario">
+                    <label class="etiqueta-grande" for="inputInicial">Paso 2: ¿Cuántos hay en total?</label>
+                    <span class="subtexto-ayuda">La cantidad de cajas o unidades que tienes guardadas</span>
+                    <input type="number" id="inputInicial" class="caja-entrada" min="0" inputmode="numeric" placeholder="0" required>
+                </div>
 
-                    <label class="form-label" for="prodName">Nombre del Producto</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="prodName" class="input-control" placeholder="Ej. Filtro Industrial" required>
-                    </div>
+                <div class="bloque-formulario">
+                    <label class="etiqueta-grande" for="inputVendidos">Paso 3: ¿Cuántos se han vendido / usado?</label>
+                    <span class="subtexto-ayuda">La cantidad que ya salió del almacén</span>
+                    <input type="number" id="inputVendidos" class="caja-entrada" min="0" inputmode="numeric" placeholder="0" required>
+                </div>
 
-                    <label class="form-label" for="prodInitial">Stock Inicial de Almacén</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="prodInitial" class="input-control" min="0" placeholder="0" required>
-                    </div>
+                <button type="submit" id="botonGuardarForm" class="boton-principal">
+                    <span id="textoBotonGuardar">GUARDAR EN LA LISTA</span>
+                </button>
+            </form>
+        </div>
 
-                    <label class="form-label" for="prodSold">Despachos / Ventas</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="prodSold" class="input-control" min="0" placeholder="0" required>
-                    </div>
+        <!-- SECCIÓN 2: LISTA DE PRODUCTOS -->
+        <div class="titulo-seccion" style="margin-left: 8px;">Productos Guardados</div>
+        <div id="listaProductosContenedor">
+            <!-- Los productos aparecerán aquí de forma limpia -->
+        </div>
 
-                    <button type="submit" id="saveBtn" class="btn btn-submit">
-                        <span class="material-icons-round" style="font-size: 18px;">save</span>
-                        <span id="btnText">Confirmar Registro</span>
-                    </button>
-                </form>
+    </div>
+
+    <!-- VENTANA EMERGENTE DE CONFIRMACIÓN DE BORRADO -->
+    <div class="pantalla-bloqueo" id="ventanaConfirmarBorrado">
+        <div class="ventana-alerta">
+            <h2>¿Seguro que quieres borrarlo?</h2>
+            <p>Esta acción quitará el producto de la lista permanentemente.</p>
+            <div class="botones-alerta">
+                <button class="btn-alerta-opcion btn-no" onclick="cerrarVentanaBorrar()">NO, CANCELAR</button>
+                <button class="btn-alerta-opcion btn-si" id="btnConfirmarBorrarOk">SÍ, BORRAR AHORA</button>
             </div>
-
-            <!-- PANEL: TABLA DE INVENTARIO -->
-            <div class="card">
-                <div class="card-title">
-                    <span class="material-icons-round">table_chart</span> Control Operativo de Existencias
-                </div>
-
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Descripción del Item</th>
-                                <th>Stock Inicial</th>
-                                <th>Unidades Vendidas</th>
-                                <th>Existencia Actual</th>
-                                <th style="text-align: right;">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inventoryTable">
-                            <!-- Inyección dinámica -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
         </div>
     </div>
 
-    <!-- --- LÓGICA DE CONTROL --- -->
     <script>
-        // Data corporativa inicial de simulación (Guardada en LocalStorage)
-        let inventario = JSON.parse(localStorage.getItem('enterprise_inventario')) || [
-            { id: 1, nombre: "Cable Convertidor de Fibra Óptica", inicial: 500, vendidos: 120 },
-            { id: 2, nombre: "Módulo Servidor Rack 2U", inicial: 15, vendidos: 12 },
-            { id: 3, nombre: "Switch Administrable de 24 Puertos", inicial: 40, vendidos: 0 }
+        // Datos de ejemplo iniciales muy claros
+        let inventario = JSON.parse(localStorage.getItem('facil_inventario')) || [
+            { id: 1, nombre: "Filtros Industriales", inicial: 100, vendidos: 20 },
+            { id: 2, nombre: "Cajas de Cables", inicial: 15, vendidos: 12 }
         ];
 
-        const tableBody = document.getElementById('inventoryTable');
-        const form = document.getElementById('productForm');
+        let idParaBorrar = null;
+        const contenedorLista = document.getElementById('listaProductosContenedor');
+        const form = document.getElementById('formularioInventario');
 
-        // --- SISTEMA INTERACTIVO DE MODO OSCURO / CLARO ---
-        const themeToggleBtn = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        const themeText = document.getElementById('themeText');
+        // DIBUJAR LOS PRODUCTOS EN PANTALLA
+        function dibujarLista() {
+            contenedorLista.innerHTML = '';
 
-        // Leer preferencia guardada del tema
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        if (currentTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            themeIcon.innerText = 'light_mode';
-            themeText.innerText = 'Modo Claro';
-        }
-
-        themeToggleBtn.addEventListener('click', () => {
-            let theme = document.documentElement.getAttribute('data-theme');
-
-            if (theme === 'dark') {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'light');
-                themeIcon.innerText = 'dark_mode';
-                themeText.innerText = 'Modo Oscuro';
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-                themeIcon.innerText = 'light_mode';
-                themeText.innerText = 'Modo Claro';
+            if (inventario.length === 0) {
+                contenedorLista.innerHTML = `<p style="text-align:center; font-size:1.1rem; color:var(--texto-gris); padding:20px;">No hay productos guardados todavía.</p>`;
+                return;
             }
-        });
-
-        // --- MANEJO DEL INVENTARIO ---
-        function renderTable() {
-            tableBody.innerHTML = '';
 
             inventario.forEach(prod => {
                 const disponible = prod.inicial - prod.vendidos;
-                const esBajo = disponible <= 5 || disponible <= (prod.inicial * 0.15);
-                const pillClass = esBajo ? 'status-pill pill-stock-low' : 'status-pill pill-stock-ok';
 
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td style="font-weight: 500;">${prod.nombre}</td>
-                    <td><span class="status-pill pill-neutral">${prod.inicial} u.</span></td>
-                    <td><span class="status-pill pill-neutral">${prod.vendidos} u.</span></td>
-                    <td><span class="${pillClass}">${disponible} u. disponibles</span></td>
-                    <td>
-                        <div class="action-group" style="justify-content: flex-end;">
-                            <button class="btn-table-action" onclick="cargarEditar(${prod.id})" title="Editar registro">
-                                <span class="material-icons-round" style="font-size: 18px;">edit</span>
-                            </button>
-                            <button class="btn-table-action btn-table-delete" onclick="eliminarProducto(${prod.id})" title="Eliminar registro">
-                                <span class="material-icons-round" style="font-size: 18px;">delete_outline</span>
-                            </button>
+                // Alerta si queda el 15% o menos
+                const esAlertaBaja = disponible <= 5 || disponible <= (prod.inicial * 0.15);
+
+                const textoAlerta = esAlertaBaja
+                    ? `⚠️ ¡Atención: Queda poco disponible!`
+                    : `✅ ¡Hay suficiente inventario!`;
+
+                const claseAlerta = esAlertaBaja ? 'alerta-disponibilidad alerta-baja' : 'alerta-disponibilidad alerta-ok';
+
+                const tarjeta = document.createElement('div');
+                tarjeta.className = 'tarjeta-producto';
+                tarjeta.innerHTML = `
+                    <div class="nombre-producto-lista">${prod.nombre}</div>
+
+                    <div class="contenedor-datos-stock">
+                        <div class="dato-cuadrado">
+                            <div class="numero">${prod.inicial}</div>
+                            <div class="texto">Stock Inicial</div>
                         </div>
-                    </td>
+                        <div class="dato-cuadrado">
+                            <div class="numero">${prod.vendidos}</div>
+                            <div class="texto">Vendidos</div>
+                        </div>
+                    </div>
+
+                    <div class="dato-cuadrado" style="margin-bottom: 12px; background-color: #f1f5f9;">
+                        <div class="numero" style="font-size: 1.8rem; color: var(--texto-oscuro);">${disponible}</div>
+                        <div class="texto" style="font-size: 1rem; font-weight: 700;">Disponibles para la venta</div>
+                    </div>
+
+                    <div class="${claseAlerta}">${textoAlerta}</div>
+
+                    <div class="bloque-botones-accion">
+                        <button class="boton-accion boton-modificar-accion" onclick="activarModoEdicion(${prod.id})">
+                            CAMBIAR DATOS
+                        </button>
+                        <button class="boton-accion boton-borrar-accion" onclick="abrirVentanaBorrar(${prod.id})">
+                            BORRAR
+                        </button>
+                    </div>
                 `;
-                tableBody.appendChild(row);
+                contenedorLista.appendChild(tarjeta);
             });
 
-            localStorage.setItem('enterprise_inventario', JSON.stringify(inventario));
+            localStorage.setItem('facil_inventario', JSON.stringify(inventario));
         }
 
+        // GUARDAR O MODIFICAR PRODUCTOS
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            const id = document.getElementById('productId').value;
-            const nombre = document.getElementById('prodName').value;
-            const inicial = parseInt(document.getElementById('prodInitial').value);
-            const vendidos = parseInt(document.getElementById('prodSold').value);
+            const id = document.getElementById('idProductoOculto').value;
+            const nombre = document.getElementById('inputNombre').value;
+            const inicial = parseInt(document.getElementById('inputInicial').value);
+            const vendidos = parseInt(document.getElementById('inputVendidos').value);
 
             if (id) {
+                // Modificar uno existente
                 const prod = inventario.find(p => p.id == id);
                 prod.nombre = nombre;
                 prod.inicial = inicial;
                 prod.vendidos = vendidos;
             } else {
+                // Crear uno nuevo
                 const nuevoProd = {
                     id: Date.now(),
                     nombre: nombre,
@@ -472,41 +435,57 @@
                 inventario.push(nuevoProd);
             }
 
-            resetForm();
-            renderTable();
+            limpiarFormulario();
+            dibujarLista();
         });
 
-        window.cargarEditar = function(id) {
+        // EDITAR UN PRODUCTO
+        window.activarModoEdicion = function(id) {
             const prod = inventario.find(p => p.id == id);
 
-            document.getElementById('productId').value = prod.id;
-            document.getElementById('prodName').value = prod.nombre;
-            document.getElementById('prodInitial').value = prod.inicial;
-            document.getElementById('prodSold').value = prod.vendidos;
+            document.getElementById('idProductoOculto').value = prod.id;
+            document.getElementById('inputNombre').value = prod.nombre;
+            document.getElementById('inputInicial').value = prod.inicial;
+            document.getElementById('inputVendidos').value = prod.vendidos;
 
-            document.getElementById('formTitle').innerHTML = '<span class="material-icons-round">edit</span> Modificar Registro';
-            document.getElementById('btnText').innerText = "Actualizar Item";
-            document.getElementById('saveBtn').classList.add('edit-mode');
+            document.getElementById('textoTituloFormulario').innerText = 'Modificando este producto';
+            document.getElementById('textoBotonGuardar').innerText = "GUARDAR CAMBIOS REALIZADOS";
+            document.getElementById('botonGuardarForm').classList.add('modo-editar');
+
+            // Sube suavemente la pantalla al formulario
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        window.eliminarProducto = function(id) {
-            if(confirm("¿Confirmar la eliminación permanente de este artículo de la base de datos?")) {
-                inventario = inventario.filter(p => p.id !== id);
-                resetForm();
-                renderTable();
+        // CONTROL DE VENTANA DE BORRADO INDEPENDIENTE
+        window.abrirVentanaBorrar = function(id) {
+            idParaBorrar = id;
+            document.getElementById('ventanaConfirmarBorrado').classList.add('mostrar');
+        }
+
+        window.cerrarVentanaBorrar = function() {
+            idParaBorrar = null;
+            document.getElementById('ventanaConfirmarBorrado').classList.remove('mostrar');
+        }
+
+        document.getElementById('btnConfirmarBorrarOk').addEventListener('click', () => {
+            if (idParaBorrar) {
+                inventario = inventario.filter(p => p.id !== idParaBorrar);
+                limpiarFormulario();
+                dibujarLista();
+                cerrarVentanaBorrar();
             }
-        }
+        });
 
-        function resetForm() {
+        function limpiarFormulario() {
             form.reset();
-            document.getElementById('productId').value = '';
-            document.getElementById('formTitle').innerHTML = '<span class="material-icons-round">add_circle_outline</span> Registro de Artículo';
-            document.getElementById('btnText').innerText = "Confirmar Registro";
-            document.getElementById('saveBtn').classList.remove('edit-mode');
+            document.getElementById('idProductoOculto').value = '';
+            document.getElementById('textoTituloFormulario').innerText = 'Anotar producto nuevo';
+            document.getElementById('textoBotonGuardar').innerText = "GUARDAR EN LA LISTA";
+            document.getElementById('botonGuardarForm').classList.remove('modo-editar');
         }
 
-        renderTable();
+        // Arrancar la pantalla
+        dibujarLista();
     </script>
 </body>
 </html>
