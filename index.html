@@ -3,510 +3,551 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CoreStock Mobile - Enterprise Inventory</title>
-    <!-- Iconos limpios de Google Material Design -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <title>Sistema de Inventario y Balance Fácil</title>
+
+    <!-- Librería externa para convertir HTML a PDF directamente -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&display=swap');
 
-        /* --- CONFIGURACIÓN DE PALETAS (TEMA CLARO) --- */
         :root {
-            --bg-principal: #f8fafc;
-            --bg-tarjeta: #ffffff;
-            --texto-primario: #0f172a;
-            --texto-secundario: #475569;
-            --borde: #e2e8f0;
-            --bg-tabla-header: #f1f5f9;
-            --bg-row-hover: #f8fafc;
+            --bg-pantalla: #f1f5f9;
+            --bg-blanco: #ffffff;
+            --texto-oscuro: #0f172a;
+            --texto-gris: #475569;
+            --borde-grueso: #cbd5e1;
 
-            --color-primario: #0284c7;
-            --color-primario-hover: #0369a1;
-            --color-exito: #16a34a;
-            --color-alerta: #dc2626;
-            --color-editar: #ea580c;
-        }
-
-        /* --- MODO OSCURO SOBRIO --- */
-        [data-theme="dark"] {
-            --bg-principal: #0f172a;
-            --bg-tarjeta: #1e293b;
-            --texto-primario: #f8fafc;
-            --texto-secundario: #94a3b8;
-            --borde: #334155;
-            --bg-tabla-header: #0f172a;
-            --bg-row-hover: #334155;
+            --color-azul-boton: #1d4ed8;
+            --color-verde-exito: #15803d;
+            --color-rojo-alerta: #b91c1c;
+            --color-naranja-editar: #c2410c;
+            --color-pdf: #047857; /* Verde Esmeralda Corporativo */
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent; /* Elimina recuadro azul al tocar en móviles */
+            font-family: 'Lexend', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-principal);
-            color: var(--texto-primario);
-            padding: 16px 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            background-color: var(--bg-pantalla);
+            color: var(--texto-oscuro);
+            padding: 16px;
             min-height: 100vh;
         }
 
-        .app-wrapper {
+        .contenedor {
             width: 100%;
-            max-width: 1240px;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        /* --- ENCABEZADO OPTIMIZADO PARA MÓVIL --- */
-        .enterprise-header {
+        /* ENCABEZADO */
+        .encabezado {
+            text-align: center;
             margin-bottom: 20px;
-            border-bottom: 2px solid var(--borde);
-            padding-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid var(--borde-grueso);
+        }
+
+        .encabezado h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-azul-boton);
+        }
+
+        .encabezado p {
+            font-size: 1.1rem;
+            color: var(--texto-gris);
+            margin-top: 4px;
+        }
+
+        /* SECCIONES Y FORMULARIO */
+        .seccion-blanca {
+            background-color: var(--bg-blanco);
+            border: 3px solid var(--borde-grueso);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .titulo-seccion {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--texto-oscuro);
+            border-left: 6px solid var(--color-azul-boton);
+            padding-left: 10px;
+        }
+
+        .bloque-formulario {
+            margin-bottom: 20px;
+        }
+
+        .etiqueta-grande {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--texto-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .subtexto-ayuda {
+            font-size: 0.95rem;
+            color: var(--texto-gris);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .caja-entrada {
+            width: 100%;
+            height: 54px;
+            padding: 0 16px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            border: 3px solid var(--borde-grueso);
+            border-radius: 12px;
+            background-color: #f8fafc;
+            color: var(--texto-oscuro);
+            outline: none;
+        }
+
+        .caja-entrada:focus {
+            border-color: var(--color-azul-boton);
+            background-color: #ffffff;
+        }
+
+        /* BOTONES PRINCIPALES */
+        .boton-principal {
+            width: 100%;
+            height: 60px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            background-color: var(--color-verde-exito);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(21, 128, 61, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s ease;
+        }
+
+        .boton-principal:active {
+            transform: scale(0.98);
+        }
+
+        .boton-principal.modo-editar {
+            background-color: var(--color-naranja-editar);
+            box-shadow: 0 4px 10px rgba(194, 65, 12, 0.3);
+        }
+
+        /* BOTÓN DE EXPORTAR PDF */
+        .boton-pdf {
+            width: 100%;
+            height: 64px;
+            background-color: var(--color-pdf);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(4, 120, 87, 0.35);
+        }
+
+        .boton-pdf:active {
+            transform: scale(0.98);
+        }
+
+        /* TARJETAS DE PRODUCTO MÓVIL */
+        .tarjeta-producto {
+            background-color: var(--bg-blanco);
+            border: 3px solid var(--borde-grueso);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .nombre-producto-lista {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--texto-oscuro);
+            margin-bottom: 12px;
+            text-transform: capitalize;
+        }
+
+        .contenedor-datos-stock {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .dato-cuadrado {
+            background-color: #f8fafc;
+            border: 2px solid var(--borde-grueso);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .dato-cuadrado .numero {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--texto-oscuro);
+        }
+
+        .dato-cuadrado .texto {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--texto-gris);
+        }
+
+        .alerta-disponibilidad {
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .alerta-ok {
+            background-color: #dcfce7;
+            color: #15803d;
+            border: 2px solid #bbf7d0;
+        }
+
+        .alerta-baja {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border: 2px solid #fecaca;
+        }
+
+        .bloque-botones-accion {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .boton-accion {
+            height: 48px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 3px solid var(--borde-grueso);
+            background-color: var(--bg-pantalla);
+        }
+
+        .boton-modificar-accion { border-color: #fdba74; background-color: #fff7ed; color: #c2410c; }
+        .boton-borrar-accion { border-color: #fca5a5; background-color: #fef2f2; color: #b91c1c; }
+
+        /* MODAL DE BORRADO */
+        .pantalla-bloqueo {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 999;
+            display: none;
+        }
+
+        .pantalla-bloqueo.mostrar { display: flex; }
+
+        .ventana-alerta {
+            background: white;
+            border: 4px solid var(--borde-grueso);
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .ventana-alerta h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+        .ventana-alerta p { font-size: 1.1rem; color: var(--texto-gris); margin-bottom: 24px; }
+
+        .botones-alerta { display: flex; flex-direction: column; gap: 12px; }
+        .btn-alerta-opcion { width: 100%; height: 50px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; border: none; cursor: pointer; }
+        .btn-no { background: var(--bg-pantalla); color: var(--texto-oscuro); border: 3px solid var(--borde-grueso); }
+        .btn-si { background: var(--color-rojo-alerta); color: white; }
+
+        /* --- PLANTILLA OCULTA DEL PDF (SOLO SE USA PARA GENERAR EL REPORTE BONITO) --- */
+        #plantillaPdfImpresion {
+            display: none;
+            background-color: #ffffff;
+            color: #0f172a;
+            padding: 30px;
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .pdf-header {
+            border-bottom: 3px solid #047857;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .brand-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            color: var(--texto-primario);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .pdf-titulo { font-size: 22px; font-weight: 700; color: #047857; }
+        .pdf-subtitulo { font-size: 12px; color: #475569; }
 
-        .brand-title span.logo-icon {
-            color: var(--color-primario);
-            font-size: 1.6rem;
-        }
-
-        /* --- BOTÓN DE CAMBIO DE TEMA TÁCTIL --- */
-        .theme-toggle-btn {
-            background-color: var(--bg-tarjeta);
-            border: 1px solid var(--borde);
-            color: var(--texto-primario);
-            padding: 8px 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transition: all 0.2s ease;
-        }
-
-        .theme-toggle-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* --- DASHBOARD RESPONSIVO --- */
-        .grid-layout {
+        .pdf-grid-totales {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
-        @media (min-width: 950px) {
-            body { padding: 40px 20px; }
-            .brand-title { font-size: 1.75rem; }
-            .brand-title span.logo-icon { font-size: 2rem; }
-            .grid-layout { grid-template-columns: 380px 1fr; gap: 24px; }
-        }
-
-        /* --- TARJETAS COMPACTAS MÓVILES --- */
-        .card {
-            background-color: var(--bg-tarjeta);
-            border: 1px solid var(--borde);
-            border-radius: 16px;
-            padding: 18px 16px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-
-        .card-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--texto-primario);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* --- FORMULARIO ADAPTADO PARA DEDOS Y TECLADO --- */
-        .form-label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--texto-secundario);
-            margin-bottom: 6px;
-        }
-
-        .input-wrapper {
-            position: relative;
-            margin-bottom: 16px;
-        }
-
-        .input-control {
-            width: 100%;
-            height: 48px; /* Altura táctil ideal */
-            padding: 0 14px;
-            font-size: 1rem; /* Evita que iOS/Android haga zoom automático al tocar */
-            border: 1px solid var(--borde);
-            border-radius: 10px;
-            background-color: var(--bg-principal);
-            color: var(--texto-primario);
-            outline: none;
-            transition: all 0.15s ease-in-out;
-        }
-
-        .input-control:focus {
-            border-color: var(--color-primario);
-            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
-        }
-
-        /* --- BOTONES TÁCTILES --- */
-        .btn {
-            width: 100%;
-            height: 50px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.15s ease;
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn-submit {
-            background-color: var(--color-primario);
-            color: white;
-            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
-        }
-
-        .btn-submit.edit-mode {
-            background-color: var(--color-editar);
-            box-shadow: 0 2px 8px rgba(234, 88, 12, 0.3);
-        }
-
-        /* --- TABLA MÓVIL CON SCROLL SUAVE --- */
-        .table-container {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch; /* Scroll fluido en celulares */
+        .pdf-caja-total {
+            background-color: #f8fafc;
+            border: 2px solid #cbd5e1;
+            padding: 12px;
             border-radius: 8px;
-            border: 1px solid var(--borde);
-        }
-
-        table {
-            width: 100%;
-            min-width: 500px; /* Garantiza lectura limpia en pantallas muy pequeñas */
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-
-        th {
-            background-color: var(--bg-tabla-header);
-            color: var(--texto-secundario);
-            padding: 12px 14px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid var(--borde);
-        }
-
-        tr {
-            border-bottom: 1px solid var(--borde);
-        }
-
-        td {
-            padding: 14px;
-            color: var(--texto-primario);
-            vertical-align: middle;
-        }
-
-        /* --- PÍLDORAS MÓVILES --- */
-        .status-pill {
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-flex;
-            white-space: nowrap;
-        }
-
-        .pill-neutral {
-            background-color: var(--bg-principal);
-            color: var(--texto-secundario);
-            border: 1px solid var(--borde);
-        }
-
-        .pill-stock-ok {
-            background-color: rgba(22, 163, 74, 0.15);
-            color: #16a34a;
-        }
-
-        .pill-stock-low {
-            background-color: rgba(220, 38, 38, 0.15);
-            color: #dc2626;
-        }
-
-        /* --- BOTONES DE ACCIÓN MÁS GRANDES PARA EL DEDO --- */
-        .action-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-table-action {
-            width: 40px;
-            height: 40px;
-            background-color: var(--bg-tarjeta);
-            border: 1px solid var(--borde);
-            border-radius: 8px;
-            cursor: pointer;
-            color: var(--texto-secundario);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.1s ease;
-        }
-
-        .btn-table-action:active {
-            transform: scale(0.9);
-            background-color: var(--bg-principal);
-        }
-
-        .btn-table-delete {
-            color: var(--color-alerta);
-            border-color: rgba(220, 38, 38, 0.2);
-            background-color: rgba(220, 38, 38, 0.05);
-        }
-
-        /* --- MODAL DE CONFIRMACIÓN PERSONALIZADO PARA MÓVIL --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-box {
-            background: var(--bg-tarjeta);
-            border: 1px solid var(--borde);
-            border-radius: 16px;
-            padding: 20px;
-            width: 100%;
-            max-width: 340px;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
-        .modal-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
-        .modal-desc { font-size: 0.9rem; color: var(--texto-secundario); margin-bottom: 20px; }
+        .pdf-caja-total .monto { font-size: 20px; font-weight: 700; color: #0f172a; }
+        .pdf-caja-total .etiqueta { font-size: 11px; font-weight: 600; color: #475569; text-transform: uppercase; }
 
-        .modal-buttons { display: flex; gap: 10px; }
-        .btn-modal { flex: 1; height: 44px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; }
-        .btn-cancel { background: var(--bg-principal); color: var(--texto-primario); border: 1px solid var(--borde); }
-        .btn-confirm { background: var(--color-alerta); color: white; }
+        .pdf-tabla {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .pdf-tabla th {
+            background-color: #047857;
+            color: white;
+            padding: 10px;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .pdf-tabla td {
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 12px;
+        }
+
+        .pdf-tabla tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .pdf-footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px dashed #cbd5e1;
+            text-align: center;
+            font-size: 11px;
+            color: #64748b;
+        }
     </style>
 </head>
 <body>
 
-    <div class="app-wrapper">
+    <div class="contenedor">
 
-        <!-- ENCABEZADO MÓVIL -->
-        <header class="enterprise-header">
-            <div class="brand-title">
-                <span class="material-icons-round logo-icon">layers</span>
-                CoreStock App
-            </div>
-
-            <button id="themeToggle" class="theme-toggle-btn">
-                <span id="themeIcon" class="material-icons-round" style="font-size: 18px;">dark_mode</span>
-                <span id="themeText">Oscuro</span>
-            </button>
+        <header class="encabezado">
+            <h1>Inventario CoreStock</h1>
+            <p>Control y Balance de Empresa</p>
         </header>
 
-        <div class="grid-layout">
+        <!-- BOTÓN PRINCIPAL DE GENERAR PDF -->
+        <button class="boton-pdf" onclick="generarReportePDF()">
+            📄 DESCARGAR BALANCE EN PDF
+        </button>
 
-            <!-- PANEL: FORMULARIO -->
-            <div class="card">
-                <div class="card-title" id="formTitle">
-                    <span class="material-icons-round">add_circle_outline</span> Registro de Artículo
+        <!-- FORMULARIO -->
+        <div class="seccion-blanca">
+            <div class="titulo-seccion" id="textoTituloFormulario">Anotar producto nuevo</div>
+
+            <form id="formularioInventario">
+                <input type="hidden" id="idProductoOculto">
+
+                <div class="bloque-formulario">
+                    <label class="etiqueta-grande" for="inputNombre">Paso 1: Nombre del producto</label>
+                    <span class="subtexto-ayuda">Escribe qué artículo es (Ej: Filtro de aire)</span>
+                    <input type="text" id="inputNombre" class="caja-entrada" placeholder="Escribe aquí el nombre" required autocomplete="off">
                 </div>
 
-                <form id="productForm">
-                    <input type="hidden" id="productId">
+                <div class="bloque-formulario">
+                    <label class="etiqueta-grande" for="inputInicial">Paso 2: ¿Cuántos entraron a la empresa?</label>
+                    <span class="subtexto-ayuda">Stock total comprado/ingresado al almacén</span>
+                    <input type="number" id="inputInicial" class="caja-entrada" min="0" inputmode="numeric" placeholder="0" required>
+                </div>
 
-                    <label class="form-label" for="prodName">Nombre del Producto</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="prodName" class="input-control" placeholder="Ej. Filtro Industrial" required autocomplete="off">
-                    </div>
+                <div class="bloque-formulario">
+                    <label class="etiqueta-grande" for="inputVendidos">Paso 3: ¿Cuántos se han vendido / despachado?</label>
+                    <span class="subtexto-ayuda">La cantidad que ya salió de la empresa</span>
+                    <input type="number" id="inputVendidos" class="caja-entrada" min="0" inputmode="numeric" placeholder="0" required>
+                </div>
 
-                    <label class="form-label" for="prodInitial">Stock Inicial de Almacén</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="prodInitial" class="input-control" min="0" inputmode="numeric" placeholder="0" required>
-                    </div>
+                <button type="submit" id="botonGuardarForm" class="boton-principal">
+                    <span id="textoBotonGuardar">GUARDAR EN LA LISTA</span>
+                </button>
+            </form>
+        </div>
 
-                    <label class="form-label" for="prodSold">Despachos / Ventas</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="prodSold" class="input-control" min="0" inputmode="numeric" placeholder="0" required>
-                    </div>
+        <div class="titulo-seccion" style="margin-left: 8px;">Productos Registrados</div>
+        <div id="listaProductosContenedor"></div>
 
-                    <button type="submit" id="saveBtn" class="btn btn-submit">
-                        <span class="material-icons-round" style="font-size: 20px;">save</span>
-                        <span id="btnText">Guardar Registro</span>
-                    </button>
-                </form>
+    </div>
+
+    <!-- ESTRUCTURA INVISIBLE PARA CONVERTIR EN EL PDF PROFESIONAL -->
+    <div id="plantillaPdfImpresion">
+        <div class="pdf-header">
+            <div>
+                <div class="pdf-titulo">BALANCE Y CONTROL DE INVENTARIO</div>
+                <div class="pdf-subtitulo">Informe oficial de entradas, ventas y existencias</div>
             </div>
-
-            <!-- PANEL: TABLA DE DATOS -->
-            <div class="card">
-                <div class="card-title">
-                    <span class="material-icons-round">table_chart</span> Control de Existencias
-                </div>
-
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Inicial</th>
-                                <th>Ventas</th>
-                                <th>Disponible</th>
-                                <th style="text-align: right;">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inventoryTable">
-                            <!-- Generación dinámica -->
-                        </tbody>
-                    </table>
-                </div>
+            <div style="text-align: right;">
+                <div style="font-weight: 700; font-size: 12px;" id="pdfFechaHoy">--/--/----</div>
+                <div style="font-size: 10px; color: #64748b;">CoreStock System</div>
             </div>
+        </div>
 
+        <!-- RESUMEN DE TOTALES -->
+        <div class="pdf-grid-totales">
+            <div class="pdf-caja-total">
+                <div class="monto" id="pdfTotalIngresado">0</div>
+                <div class="etiqueta">Total Entradas</div>
+            </div>
+            <div class="pdf-caja-total">
+                <div class="monto" id="pdfTotalVendidos" style="color: #15803d;">0</div>
+                <div class="etiqueta">Total Vendidos</div>
+            </div>
+            <div class="pdf-caja-total">
+                <div class="monto" id="pdfTotalDisponible" style="color: #1d4ed8;">0</div>
+                <div class="etiqueta">Disponible Actual</div>
+            </div>
+        </div>
+
+        <!-- TABLA DETALLADA -->
+        <table class="pdf-tabla">
+            <thead>
+                <tr>
+                    <th>Nombre del Producto</th>
+                    <th style="text-align: center;">Entró (Inicial)</th>
+                    <th style="text-align: center;">Vendido</th>
+                    <th style="text-align: center;">Disponible</th>
+                    <th style="text-align: center;">% Salida</th>
+                </tr>
+            </thead>
+            <tbody id="pdfTablaCuerpo">
+                <!-- Se llena automáticamente -->
+            </tbody>
+        </table>
+
+        <div class="pdf-footer">
+            Este documento representa el cuadre de inventarios y balance de movimiento físico de mercancía al momento de su impresión.
         </div>
     </div>
 
-    <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN -->
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal-box">
-            <div class="modal-title">¿Eliminar registro?</div>
-            <div class="modal-desc">Esta acción removerá el producto de tu base de datos local.</div>
-            <div class="modal-buttons">
-                <button class="btn-modal btn-cancel" onclick="closeModal()">Cancelar</button>
-                <button class="btn-modal btn-confirm" id="confirmDeleteBtn">Eliminar</button>
+    <!-- MODAL CONFIRMACIÓN BORRADO -->
+    <div class="pantalla-bloqueo" id="ventanaConfirmarBorrado">
+        <div class="ventana-alerta">
+            <h2>¿Seguro que quieres borrarlo?</h2>
+            <p>Esta acción quitará el producto de la lista permanentemente.</p>
+            <div class="botones-alerta">
+                <button class="btn-alerta-opcion btn-no" onclick="cerrarVentanaBorrar()">NO, CANCELAR</button>
+                <button class="btn-alerta-opcion btn-si" id="btnConfirmarBorrarOk">SÍ, BORRAR AHORA</button>
             </div>
         </div>
     </div>
 
-    <!-- --- LÓGICA DE CONTROL --- -->
     <script>
-        let inventario = JSON.parse(localStorage.getItem('enterprise_inventario')) || [
-            { id: 1, nombre: "Cable Convertidor Fibra", inicial: 500, vendidos: 120 },
-            { id: 2, nombre: "Módulo Servidor Rack 2U", inicial: 15, vendidos: 12 },
-            { id: 3, nombre: "Switch Administrable 24P", inicial: 40, vendidos: 0 }
+        let inventario = JSON.parse(localStorage.getItem('facil_inventario')) || [
+            { id: 1, nombre: "Filtros Industriales", inicial: 100, vendidos: 25 },
+            { id: 2, nombre: "Cajas de Cables Cat6", inicial: 40, vendidos: 38 }
         ];
 
-        let deleteTargetId = null;
-        const tableBody = document.getElementById('inventoryTable');
-        const form = document.getElementById('productForm');
+        let idParaBorrar = null;
+        const contenedorLista = document.getElementById('listaProductosContenedor');
+        const form = document.getElementById('formularioInventario');
 
-        // MODO OSCURO / CLARO
-        const themeToggleBtn = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        const themeText = document.getElementById('themeText');
+        function dibujarLista() {
+            contenedorLista.innerHTML = '';
 
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        if (currentTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            themeIcon.innerText = 'light_mode';
-            themeText.innerText = 'Claro';
-        }
-
-        themeToggleBtn.addEventListener('click', () => {
-            let theme = document.documentElement.getAttribute('data-theme');
-            if (theme === 'dark') {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'light');
-                themeIcon.innerText = 'dark_mode';
-                themeText.innerText = 'Oscuro';
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-                themeIcon.innerText = 'light_mode';
-                themeText.innerText = 'Claro';
+            if (inventario.length === 0) {
+                contenedorLista.innerHTML = `<p style="text-align:center; font-size:1.1rem; color:var(--texto-gris); padding:20px;">No hay productos guardados todavía.</p>`;
+                return;
             }
-        });
-
-        // RENDERIZAR TABLA
-        function renderTable() {
-            tableBody.innerHTML = '';
 
             inventario.forEach(prod => {
                 const disponible = prod.inicial - prod.vendidos;
-                const esBajo = disponible <= 5 || disponible <= (prod.inicial * 0.15);
-                const pillClass = esBajo ? 'status-pill pill-stock-low' : 'status-pill pill-stock-ok';
+                const esAlertaBaja = disponible <= 5 || disponible <= (prod.inicial * 0.15);
 
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td style="font-weight: 600;">${prod.nombre}</td>
-                    <td><span class="status-pill pill-neutral">${prod.inicial}</span></td>
-                    <td><span class="status-pill pill-neutral">${prod.vendidos}</span></td>
-                    <td><span class="${pillClass}">${disponible}</span></td>
-                    <td>
-                        <div class="action-group" style="justify-content: flex-end;">
-                            <button class="btn-table-action" onclick="cargarEditar(${prod.id})" title="Editar">
-                                <span class="material-icons-round" style="font-size: 20px;">edit</span>
-                            </button>
-                            <button class="btn-table-action btn-table-delete" onclick="openModal(${prod.id})" title="Eliminar">
-                                <span class="material-icons-round" style="font-size: 20px;">delete_outline</span>
-                            </button>
+                const textoAlerta = esAlertaBaja
+                    ? `⚠️ ¡Atención: Queda poco disponible!`
+                    : `✅ ¡Hay suficiente inventario!`;
+
+                const claseAlerta = esAlertaBaja ? 'alerta-disponibilidad alerta-baja' : 'alerta-disponibilidad alerta-ok';
+
+                const tarjeta = document.createElement('div');
+                tarjeta.className = 'tarjeta-producto';
+                tarjeta.innerHTML = `
+                    <div class="nombre-producto-lista">${prod.nombre}</div>
+
+                    <div class="contenedor-datos-stock">
+                        <div class="dato-cuadrado">
+                            <div class="numero">${prod.inicial}</div>
+                            <div class="texto">Entró a Empresa</div>
                         </div>
-                    </td>
+                        <div class="dato-cuadrado">
+                            <div class="numero">${prod.vendidos}</div>
+                            <div class="texto">Se Vendió</div>
+                        </div>
+                    </div>
+
+                    <div class="dato-cuadrado" style="margin-bottom: 12px; background-color: #f1f5f9;">
+                        <div class="numero" style="font-size: 1.8rem; color: var(--texto-oscuro);">${disponible}</div>
+                        <div class="texto" style="font-size: 1rem; font-weight: 700;">Disponibles para la venta</div>
+                    </div>
+
+                    <div class="${claseAlerta}">${textoAlerta}</div>
+
+                    <div class="bloque-botones-accion">
+                        <button class="boton-accion boton-modificar-accion" onclick="activarModoEdicion(${prod.id})">
+                            CAMBIAR DATOS
+                        </button>
+                        <button class="boton-accion boton-borrar-accion" onclick="abrirVentanaBorrar(${prod.id})">
+                            BORRAR
+                        </button>
+                    </div>
                 `;
-                tableBody.appendChild(row);
+                contenedorLista.appendChild(tarjeta);
             });
 
-            localStorage.setItem('enterprise_inventario', JSON.stringify(inventario));
+            localStorage.setItem('facil_inventario', JSON.stringify(inventario));
         }
 
-        // GUARDAR O EDITAR
+        // GUARDAR / EDITAR
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            const id = document.getElementById('productId').value;
-            const nombre = document.getElementById('prodName').value;
-            const inicial = parseInt(document.getElementById('prodInitial').value);
-            const vendidos = parseInt(document.getElementById('prodSold').value);
+            const id = document.getElementById('idProductoOculto').value;
+            const nombre = document.getElementById('inputNombre').value;
+            const inicial = parseInt(document.getElementById('inputInicial').value);
+            const vendidos = parseInt(document.getElementById('inputVendidos').value);
 
             if (id) {
                 const prod = inventario.find(p => p.id == id);
@@ -514,65 +555,126 @@
                 prod.inicial = inicial;
                 prod.vendidos = vendidos;
             } else {
-                const nuevoProd = {
+                inventario.push({
                     id: Date.now(),
                     nombre: nombre,
                     inicial: inicial,
                     vendidos: vendidos
-                };
-                inventario.push(nuevoProd);
+                });
             }
 
-            resetForm();
-            renderTable();
+            limpiarFormulario();
+            dibujarLista();
         });
 
-        // CARGAR MODO EDICIÓN
-        window.cargarEditar = function(id) {
+        window.activarModoEdicion = function(id) {
             const prod = inventario.find(p => p.id == id);
 
-            document.getElementById('productId').value = prod.id;
-            document.getElementById('prodName').value = prod.nombre;
-            document.getElementById('prodInitial').value = prod.inicial;
-            document.getElementById('prodSold').value = prod.vendidos;
+            document.getElementById('idProductoOculto').value = prod.id;
+            document.getElementById('inputNombre').value = prod.nombre;
+            document.getElementById('inputInicial').value = prod.inicial;
+            document.getElementById('inputVendidos').value = prod.vendidos;
 
-            document.getElementById('formTitle').innerHTML = '<span class="material-icons-round">edit</span> Modificar Artículo';
-            document.getElementById('btnText').innerText = "Actualizar Cambios";
-            document.getElementById('saveBtn').classList.add('edit-mode');
-
-            // Auto scroll hacia el formulario en celulares
+            document.getElementById('textoTituloFormulario').innerText = 'Modificando este producto';
+            document.getElementById('textoBotonGuardar').innerText = "GUARDAR CAMBIOS REALIZADOS";
+            document.getElementById('botonGuardarForm').classList.add('modo-editar');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // CONTROL DEL MODAL DE ELIMINACIÓN
-        window.openModal = function(id) {
-            deleteTargetId = id;
-            document.getElementById('deleteModal').classList.add('active');
+        window.abrirVentanaBorrar = function(id) {
+            idParaBorrar = id;
+            document.getElementById('ventanaConfirmarBorrado').classList.add('mostrar');
         }
 
-        window.closeModal = function() {
-            deleteTargetId = null;
-            document.getElementById('deleteModal').classList.remove('active');
+        window.cerrarVentanaBorrar = function() {
+            idParaBorrar = null;
+            document.getElementById('ventanaConfirmarBorrado').classList.remove('mostrar');
         }
 
-        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-            if (deleteTargetId) {
-                inventario = inventario.filter(p => p.id !== deleteTargetId);
-                resetForm();
-                renderTable();
-                closeModal();
+        document.getElementById('btnConfirmarBorrarOk').addEventListener('click', () => {
+            if (idParaBorrar) {
+                inventario = inventario.filter(p => p.id !== idParaBorrar);
+                limpiarFormulario();
+                dibujarLista();
+                cerrarVentanaBorrar();
             }
         });
 
-        function resetForm() {
+        function limpiarFormulario() {
             form.reset();
-            document.getElementById('productId').value = '';
-            document.getElementById('formTitle').innerHTML = '<span class="material-icons-round">add_circle_outline</span> Registro de Artículo';
-            document.getElementById('btnText').innerText = "Guardar Registro";
-            document.getElementById('saveBtn').classList.remove('edit-mode');
+            document.getElementById('idProductoOculto').value = '';
+            document.getElementById('textoTituloFormulario').innerText = 'Anotar producto nuevo';
+            document.getElementById('textoBotonGuardar').innerText = "GUARDAR EN LA LISTA";
+            document.getElementById('botonGuardarForm').classList.remove('modo-editar');
         }
 
-        renderTable();
+        // --- FUNCIÓN PARA GENERAR EL PDF LIMPIO Y BONITO ---
+        window.generarReportePDF = function() {
+            if (inventario.length === 0) {
+                alert("Primero debes agregar al menos un producto a la lista para generar el reporte.");
+                return;
+            }
+
+            // 1. Calcular Totales Generales de la Empresa
+            let totalIngresado = 0;
+            let totalVendidos = 0;
+            let totalDisponible = 0;
+
+            const tablaCuerpo = document.getElementById('pdfTablaCuerpo');
+            tablaCuerpo.innerHTML = '';
+
+            inventario.forEach(prod => {
+                const disponible = prod.inicial - prod.vendidos;
+                totalIngresado += prod.inicial;
+                totalVendidos += prod.vendidos;
+                totalDisponible += disponible;
+
+                // Porcentaje de rotación
+                const porcentajeVenta = prod.inicial > 0
+                    ? ((prod.vendidos / prod.inicial) * 100).toFixed(0)
+                    : 0;
+
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td style="font-weight: 600;">${prod.nombre}</td>
+                    <td style="text-align: center;">${prod.inicial}</td>
+                    <td style="text-align: center; color: #15803d; font-weight: 600;">${prod.vendidos}</td>
+                    <td style="text-align: center; font-weight: 600;">${disponible}</td>
+                    <td style="text-align: center; color: #64748b;">${porcentajeVenta}%</td>
+                `;
+                tablaCuerpo.appendChild(fila);
+            });
+
+            // 2. Colocar los valores en la plantilla
+            document.getElementById('pdfTotalIngresado').innerText = totalIngresado;
+            document.getElementById('pdfTotalVendidos').innerText = totalVendidos;
+            document.getElementById('pdfTotalDisponible').innerText = totalDisponible;
+
+            const fechaActual = new Date();
+            const fechaFormateada = fechaActual.toLocaleDateString('es-ES', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+            document.getElementById('pdfFechaHoy').innerText = fechaFormateada;
+
+            // 3. Generar el PDF mediante la librería
+            const elementoPDF = document.getElementById('plantillaPdfImpresion');
+            elementoPDF.style.display = 'block'; // Mostrar momentáneamente para captura
+
+            const opcionesConfig = {
+                margin:       10,
+                filename:     `Balance_Inventario_${fechaActual.toISOString().slice(0,10)}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opcionesConfig).from(elementoPDF).save().then(() => {
+                elementoPDF.style.display = 'none'; // Ocultar plantilla nuevamente
+            });
+        }
+
+        dibujarLista();
     </script>
 </body>
 </html>
