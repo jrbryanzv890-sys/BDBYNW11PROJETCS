@@ -607,7 +607,7 @@
             document.getElementById('botonGuardarForm').classList.remove('modo-editar');
         }
 
-        /* --- GENERACIÓN DE PDF NATIVA COMPATIBLE CON APK ANDROID --- */
+        /* --- GENERACIÓN DE PDF NATIVA COMPATIBLE CON APK ANDROID Y NAVEGADOR --- */
         async function generarReportePDF() {
             if (inventario.length === 0) {
                 alert("Primero debes agregar al menos un producto a la lista para generar el reporte.");
@@ -660,7 +660,6 @@
             try {
                 const elemento = document.getElementById('plantillaPdfImpresion');
 
-                // Renderizar la vista a Canvas
                 const canvas = await html2canvas(elemento, {
                     scale: 2,
                     useCORS: true,
@@ -675,7 +674,25 @@
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                pdf.save(`Balance_Inventario_${fechaActual.toISOString().slice(0,10)}.pdf`);
+
+                const nombreArchivo = `Balance_Inventario_${fechaActual.toISOString().slice(0,10)}.pdf`;
+
+                // DETECCIÓN Y ADAPTACIÓN PARA APK / ANDROID WEBVIEW
+                const isAndroidApp = /Android|WebView/i.test(navigator.userAgent);
+
+                if (isAndroidApp) {
+                    // Forzar redirección de datos base64 para que WebView capture el Data URI
+                    const pdfDataUri = pdf.output('datauristring');
+                    const link = document.createElement('a');
+                    link.href = pdfDataUri;
+                    link.download = nombreArchivo;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    // Descarga estándar para navegador web
+                    pdf.save(nombreArchivo);
+                }
 
             } catch (err) {
                 alert("Error al procesar el archivo en el dispositivo.");
