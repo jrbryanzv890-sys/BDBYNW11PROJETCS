@@ -371,13 +371,13 @@
     <div class="contenedor">
 
         <header class="encabezado">
-            <h1>Sistema CoreStock</h1>
+            <h1>Sistema ProFact</h1>
             <p>Control y Balance de Empresa</p>
         </header>
 
-        <!-- BOTÓN PRINCIPAL DE GENERAR PDF -->
+        <!-- BOTÓN PRINCIPAL -->
         <button class="boton-pdf" id="btnDescargarPDF" onclick="generarReportePDF()">
-            📄 DESCARGAR BALANCE EN PDF
+            📄 ABRIR BALANCE EN PDF
         </button>
 
         <!-- FORMULARIO -->
@@ -474,7 +474,7 @@
         </div>
     </div>
 
-    <!-- CÓDIGO JAVASCRIPT -->
+    <!-- CÓDIGO JAVASCRIPT CON APERTURA DIRECTA -->
     <script>
         let inventario = JSON.parse(localStorage.getItem('profact_inventario')) || [
             { id: 1, nombre: "Vidrio Laminado 6mm", inicial: 50, vendidos: 12 },
@@ -608,11 +608,18 @@
             document.getElementById('botonGuardarForm').classList.remove('modo-editar');
         }
 
-        /* --- GENERACIÓN DE PDF COMPATIBLE CON MÓVILES --- */
+        /* --- APERTURA DIRECTA DE PDF EN NAVEGADOR --- */
         async function generarReportePDF() {
             if (inventario.length === 0) {
                 alert("Primero debes agregar al menos un producto a la lista para generar el reporte.");
                 return;
+            }
+
+            // 1. Abrimos una pestaña en blanco INMEDIATAMENTE tras el click del usuario
+            // Esto evita que el bloqueador de pop-ups de Android/iOS la cancele.
+            const ventanaPDF = window.open('', '_blank');
+            if (ventanaPDF) {
+                ventanaPDF.document.write('<p style="font-family:sans-serif; padding:20px;">Cargando reporte PDF de ProFact...</p>');
             }
 
             const btn = document.getElementById('btnDescargarPDF');
@@ -670,7 +677,7 @@
                     backgroundColor: '#ffffff'
                 });
 
-                const imgData = canvas.toDataURL('image/jpeg', 0.75);
+                const imgData = canvas.toDataURL('image/jpeg', 0.8);
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
 
@@ -679,25 +686,22 @@
 
                 pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
 
-                const nombreArchivo = `Balance_Inventario_${fechaActual.toISOString().slice(0,10)}.pdf`;
+                // 2. Convertimos el PDF a una URL de Blob y redirigimos la pestaña abierta
+                const pdfUrl = pdf.output('bloburl');
 
-                // Método de guardado nativo de jsPDF
-                pdf.save(nombreArchivo);
-
-                // Plan B para navegadores móviles/WebViews que ocultan las descargas
-                setTimeout(() => {
-                    const blob = pdf.output('blob');
-                    const blobUrl = URL.createObjectURL(blob);
-                    if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-                        window.open(blobUrl, '_blank');
-                    }
-                }, 400);
+                if (ventanaPDF) {
+                    ventanaPDF.location.href = pdfUrl;
+                } else {
+                    // Si el navegador bloqueó la ventana emergente, usamos la pestaña actual
+                    window.location.href = pdfUrl;
+                }
 
             } catch (err) {
+                if (ventanaPDF) ventanaPDF.close();
                 alert("Error al procesar el PDF: " + err.message);
                 console.error(err);
             } finally {
-                btn.innerText = "📄 DESCARGAR BALANCE EN PDF";
+                btn.innerText = "📄 ABRIR BALANCE EN PDF";
                 btn.disabled = false;
             }
         }
