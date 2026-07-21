@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ProFact - Control de Inventario</title>
 
-    <!-- LIBRERÍA JS PARA GENERAR Y DESCARGAR EL PDF DIRECTAMENTE -->
+    <!-- LIBRERÍA JS PARA ENVIAR EL PDF AL VISOR DE CHROME -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
@@ -289,7 +289,7 @@
         .btn-no { background: var(--bg-pantalla); color: var(--texto-oscuro); border: 3px solid var(--borde-grueso); }
         .btn-si { background: var(--color-rojo-alerta); color: white; }
 
-        /* REPORTE OCULTO (PLANTILLA PARA EL PDF) */
+        /* REPORTE OCULTO PARA CONVERTIR A PDF */
         #contenedorReportePDF {
             position: absolute;
             left: -9999px;
@@ -379,7 +379,7 @@
 
         <!-- BOTÓN PRINCIPAL -->
         <button class="boton-pdf" id="btnDescargarPDF" onclick="generarReportePDF()">
-            📥 DESCARGAR REPORTE EN PDF
+            🌐 ABRIR Y DESCARGAR REPORTE EN CHROME
         </button>
 
         <!-- FORMULARIO -->
@@ -418,7 +418,7 @@
 
     </div>
 
-    <!-- CONTENEDOR OCULTO PARA GENERAR EL PDF -->
+    <!-- CONTENEDOR OCULTO PARA LA PLANTILLA PDF -->
     <div id="contenedorReportePDF">
         <div class="hoja-reporte-contenido">
             <div class="pdf-header">
@@ -607,10 +607,10 @@
             document.getElementById('botonGuardarForm').classList.remove('modo-editar');
         }
 
-        /* --- GENERACIÓN Y DESCARGA DIRECTA EN PDF --- */
+        /* --- OPCIÓN 1: GENERAR Y ABRIR EN PESTAÑA NUEVA DE CHROME --- */
         function generarReportePDF() {
             if (inventario.length === 0) {
-                alert("Primero debes agregar al menos un producto a la lista para generar el reporte.");
+                alert("Primero debes agregar al menos un producto a la lista para ver el reporte.");
                 return;
             }
 
@@ -653,7 +653,7 @@
             });
             document.getElementById('pdfFechaHoy').innerText = "Fecha: " + fechaFormateada;
 
-            // Descargar como PDF usando html2pdf
+            // CONFIGURACIÓN DE APERTURA EN VISOR NATIVO DE CHROME
             const elemento = document.querySelector('.hoja-reporte-contenido');
             const opciones = {
                 margin:       10,
@@ -663,7 +663,10 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opciones).from(elemento).save();
+            // Genera el PDF en un objeto URL temporal y lo abre en nueva pestaña
+            html2pdf().set(opciones).from(elemento).toPdf().output('bloburl').then(function (pdfUrl) {
+                window.open(pdfUrl, '_blank');
+            });
         }
 
         dibujarLista();
