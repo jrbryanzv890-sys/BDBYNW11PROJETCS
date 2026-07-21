@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ProFact - Control de Inventario</title>
 
+    <!-- LIBRERÍA JS PARA GENERAR Y DESCARGAR EL PDF DIRECTAMENTE -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&display=swap');
 
@@ -286,40 +289,15 @@
         .btn-no { background: var(--bg-pantalla); color: var(--texto-oscuro); border: 3px solid var(--borde-grueso); }
         .btn-si { background: var(--color-rojo-alerta); color: white; }
 
-        /* --- MODAL PANTALLA COMPLETA DE REPORTE/BALANCE --- */
-        .modal-reporte-full {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+        /* REPORTE OCULTO (PLANTILLA PARA EL PDF) */
+        #contenedorReportePDF {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            width: 100%;
+            max-width: 800px;
             background: #ffffff;
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            overflow-y: auto;
-            padding: 16px;
-        }
-
-        .modal-reporte-full.mostrar {
-            display: flex;
-        }
-
-        .barra-superior-reporte {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 12px;
-            margin-bottom: 16px;
-            border-bottom: 2px solid var(--borde-grueso);
-        }
-
-        .btn-cerrar-reporte {
-            background-color: #e2e8f0;
-            color: #0f172a;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
+            padding: 20px;
         }
 
         .hoja-reporte-contenido {
@@ -335,8 +313,8 @@
             margin-bottom: 16px;
         }
 
-        .pdf-titulo { font-size: 1.2rem; font-weight: 700; color: #047857; }
-        .pdf-subtitulo { font-size: 0.85rem; color: #475569; }
+        .pdf-titulo { font-size: 1.4rem; font-weight: 700; color: #047857; }
+        .pdf-subtitulo { font-size: 0.95rem; color: #475569; }
 
         .pdf-grid-totales {
             display: grid;
@@ -348,13 +326,13 @@
         .pdf-caja-total {
             background-color: #f8fafc;
             border: 1px solid #cbd5e1;
-            padding: 8px;
+            padding: 10px;
             border-radius: 8px;
             text-align: center;
         }
 
-        .pdf-caja-total .monto { font-size: 1.2rem; font-weight: 700; color: #0f172a; }
-        .pdf-caja-total .etiqueta { font-size: 0.65rem; font-weight: 600; color: #475569; text-transform: uppercase; }
+        .pdf-caja-total .monto { font-size: 1.3rem; font-weight: 700; color: #0f172a; }
+        .pdf-caja-total .etiqueta { font-size: 0.75rem; font-weight: 600; color: #475569; text-transform: uppercase; }
 
         .pdf-tabla {
             width: 100%;
@@ -365,15 +343,15 @@
         .pdf-tabla th {
             background-color: #047857;
             color: white;
-            padding: 8px 4px;
-            font-size: 0.75rem;
+            padding: 10px 6px;
+            font-size: 0.85rem;
             text-align: left;
         }
 
         .pdf-tabla td {
-            padding: 8px 4px;
+            padding: 10px 6px;
             border-bottom: 1px solid #e2e8f0;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
         }
 
         .pdf-tabla tr:nth-child(even) {
@@ -385,7 +363,7 @@
             padding-top: 10px;
             border-top: 1px dashed #cbd5e1;
             text-align: center;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             color: #64748b;
         }
     </style>
@@ -401,7 +379,7 @@
 
         <!-- BOTÓN PRINCIPAL -->
         <button class="boton-pdf" id="btnDescargarPDF" onclick="generarReportePDF()">
-            📋 VER BALANCE / INFORME COMPLETO
+            📥 DESCARGAR REPORTE EN PDF
         </button>
 
         <!-- FORMULARIO -->
@@ -440,18 +418,13 @@
 
     </div>
 
-    <!-- MODAL VISTA PREVIA DEL BALANCE (FUNCIONA SIEMPRE EN CUALQUIER MÓVIL) -->
-    <div class="modal-reporte-full" id="modalReporteBalance">
-        <div class="barra-superior-reporte">
-            <span style="font-weight:700; font-size:1.1rem; color:var(--color-pdf);">📄 Vista de Informe</span>
-            <button class="btn-cerrar-reporte" onclick="cerrarReporteModal()">✖ VOLVER</button>
-        </div>
-
+    <!-- CONTENEDOR OCULTO PARA GENERAR EL PDF -->
+    <div id="contenedorReportePDF">
         <div class="hoja-reporte-contenido">
             <div class="pdf-header">
-                <div class="pdf-titulo">BALANCE DE INVENTARIO</div>
-                <div class="pdf-subtitulo">Informe de entradas, ventas y existencias</div>
-                <div style="font-weight: 700; font-size: 0.75rem; margin-top: 6px; color:#475569;" id="pdfFechaHoy">--/--/----</div>
+                <div class="pdf-titulo">BALANCE DE INVENTARIO - PROFACT</div>
+                <div class="pdf-subtitulo">Informe oficial de entradas, ventas y existencias</div>
+                <div style="font-weight: 700; font-size: 0.8rem; margin-top: 6px; color:#475569;" id="pdfFechaHoy">--/--/----</div>
             </div>
 
             <div class="pdf-grid-totales">
@@ -476,7 +449,7 @@
                         <th style="text-align: center;">Inicial</th>
                         <th style="text-align: center;">Venta</th>
                         <th style="text-align: center;">Disp.</th>
-                        <th style="text-align: center;">%</th>
+                        <th style="text-align: center;">% Salida</th>
                     </tr>
                 </thead>
                 <tbody id="pdfTablaCuerpo"></tbody>
@@ -634,10 +607,10 @@
             document.getElementById('botonGuardarForm').classList.remove('modo-editar');
         }
 
-        /* --- GENERACIÓN Y APERTURA DE REPORTE EN PANTALLA --- */
+        /* --- GENERACIÓN Y DESCARGA DIRECTA EN PDF --- */
         function generarReportePDF() {
             if (inventario.length === 0) {
-                alert("Primero debes agregar al menos un producto a la lista para ver el reporte.");
+                alert("Primero debes agregar al menos un producto a la lista para generar el reporte.");
                 return;
             }
 
@@ -680,12 +653,17 @@
             });
             document.getElementById('pdfFechaHoy').innerText = "Fecha: " + fechaFormateada;
 
-            // Muestra la ventana modal limpia
-            document.getElementById('modalReporteBalance').classList.add('mostrar');
-        }
+            // Descargar como PDF usando html2pdf
+            const elemento = document.querySelector('.hoja-reporte-contenido');
+            const opciones = {
+                margin:       10,
+                filename:     'Reporte_ProFact.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
 
-        function cerrarReporteModal() {
-            document.getElementById('modalReporteBalance').classList.remove('mostrar');
+            html2pdf().set(opciones).from(elemento).save();
         }
 
         dibujarLista();
