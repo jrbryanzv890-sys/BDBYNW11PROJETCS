@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ProFact - Control de Inventario</title>
 
+    <!-- Librería html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&display=swap');
 
@@ -14,7 +17,6 @@
             --texto-oscuro: #0f172a;
             --texto-gris: #475569;
             --borde-grueso: #cbd5e1;
-
             --color-azul-boton: #1d4ed8;
             --color-verde-exito: #15803d;
             --color-rojo-alerta: #b91c1c;
@@ -43,7 +45,6 @@
             margin: 0 auto;
         }
 
-        /* ENCABEZADO */
         .encabezado {
             text-align: center;
             margin-bottom: 20px;
@@ -63,7 +64,6 @@
             margin-top: 4px;
         }
 
-        /* BOTÓN DE VER REPORTE */
         .boton-pdf {
             width: 100%;
             height: 64px;
@@ -86,7 +86,6 @@
             transform: scale(0.98);
         }
 
-        /* SECCIONES Y FORMULARIO */
         .seccion-blanca {
             background-color: var(--bg-blanco);
             border: 3px solid var(--borde-grueso);
@@ -142,7 +141,6 @@
             background-color: #ffffff;
         }
 
-        /* BOTONES PRINCIPALES */
         .boton-principal {
             width: 100%;
             height: 60px;
@@ -157,7 +155,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.1s ease;
         }
 
         .boton-principal:active {
@@ -169,7 +166,6 @@
             box-shadow: 0 4px 10px rgba(194, 65, 12, 0.3);
         }
 
-        /* TARJETAS DE PRODUCTO MÓVIL */
         .tarjeta-producto {
             background-color: var(--bg-blanco);
             border: 3px solid var(--borde-grueso);
@@ -253,7 +249,6 @@
         .boton-modificar-accion { border-color: #fdba74; background-color: #fff7ed; color: #c2410c; }
         .boton-borrar-accion { border-color: #fca5a5; background-color: #fef2f2; color: #b91c1c; }
 
-        /* MODAL DE BORRADO */
         .pantalla-bloqueo {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -286,104 +281,81 @@
         .btn-no { background: var(--bg-pantalla); color: var(--texto-oscuro); border: 3px solid var(--borde-grueso); }
         .btn-si { background: var(--color-rojo-alerta); color: white; }
 
-        /* PLANTILLA PDF OCULTA EN PANTALLA */
+        /* PLANTILLA PDF (Oculta visualmente pero renderizable por html2pdf) */
         #contenedorReportePDF {
-            display: none;
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            width: 800px;
+            background: white;
+            padding: 20px;
         }
 
-        /* ESTILOS EXCLUSIVOS PARA LA VISTA PREVIA Y PDF EN CHROME */
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #contenedorReportePDF, #contenedorReportePDF * {
-                visibility: visible;
-            }
-            #contenedorReportePDF {
-                display: block !important;
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                padding: 0;
-                margin: 0;
-                background: white;
-            }
+        .hoja-reporte-contenido {
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: white;
+        }
 
-            @page {
-                size: A4 portrait;
-                margin: 12mm;
-            }
+        .pdf-header {
+            border-bottom: 3px solid #047857;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
 
-            .hoja-reporte-contenido {
-                border: 2px solid #cbd5e1;
-                border-radius: 8px;
-                padding: 20px;
-            }
+        .pdf-titulo { font-size: 1.6rem; font-weight: 700; color: #047857; }
+        .pdf-subtitulo { font-size: 1rem; color: #475569; }
 
-            .pdf-header {
-                border-bottom: 3px solid #047857;
-                padding-bottom: 10px;
-                margin-bottom: 16px;
-            }
+        .pdf-grid-totales {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
 
-            .pdf-titulo { font-size: 1.6rem; font-weight: 700; color: #047857; }
-            .pdf-subtitulo { font-size: 1rem; color: #475569; }
+        .pdf-caja-total {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
 
-            .pdf-grid-totales {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 12px;
-                margin-bottom: 20px;
-            }
+        .pdf-caja-total .monto { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
+        .pdf-caja-total .etiqueta { font-size: 0.8rem; font-weight: 600; color: #475569; text-transform: uppercase; }
 
-            .pdf-caja-total {
-                background-color: #f8fafc;
-                border: 1px solid #cbd5e1;
-                padding: 12px;
-                border-radius: 8px;
-                text-align: center;
-            }
+        .pdf-tabla {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
 
-            .pdf-caja-total .monto { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
-            .pdf-caja-total .etiqueta { font-size: 0.8rem; font-weight: 600; color: #475569; text-transform: uppercase; }
+        .pdf-tabla th {
+            background-color: #047857;
+            color: white;
+            padding: 10px 8px;
+            font-size: 0.9rem;
+            text-align: left;
+        }
 
-            .pdf-tabla {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 10px;
-            }
+        .pdf-tabla td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
 
-            .pdf-tabla th {
-                background-color: #047857 !important;
-                color: white !important;
-                padding: 10px 8px;
-                font-size: 0.9rem;
-                text-align: left;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
+        .pdf-tabla tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
 
-            .pdf-tabla td {
-                padding: 10px 8px;
-                border-bottom: 1px solid #e2e8f0;
-                font-size: 0.9rem;
-            }
-
-            .pdf-tabla tr:nth-child(even) {
-                background-color: #f8fafc;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .pdf-footer {
-                margin-top: 30px;
-                padding-top: 10px;
-                border-top: 1px dashed #cbd5e1;
-                text-align: center;
-                font-size: 0.85rem;
-                color: #64748b;
-            }
+        .pdf-footer {
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px dashed #cbd5e1;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #64748b;
         }
     </style>
 </head>
@@ -396,9 +368,9 @@
             <p>Control y Balance de Empresa</p>
         </header>
 
-        <!-- BOTÓN PRINCIPAL -->
-        <button class="boton-pdf" onclick="generarReportePDF()">
-            📄 ABRIR VISTA PREVIA Y DESCARGAR PDF
+        <!-- BOTÓN DESCARGAR PDF -->
+        <button class="boton-pdf" id="btnDescargarPdf" onclick="generarReportePDF()">
+            📥 DESCARGAR REPORTE PDF
         </button>
 
         <!-- FORMULARIO -->
@@ -437,9 +409,9 @@
 
     </div>
 
-    <!-- CONTENEDOR REPORTE PARA LA IMPRESIÓN/PDF NATIVO DE CHROME -->
+    <!-- ESTRUCTURA OCULTA PARA CAPTURA HTML2PDF -->
     <div id="contenedorReportePDF">
-        <div class="hoja-reporte-contenido">
+        <div class="hoja-reporte-contenido" id="bloqueAConvertir">
             <div class="pdf-header">
                 <div class="pdf-titulo">BALANCE DE INVENTARIO - PROFACT</div>
                 <div class="pdf-subtitulo">Informe oficial de entradas, ventas y existencias</div>
@@ -475,7 +447,7 @@
             </table>
 
             <div class="pdf-footer">
-                Sistema ProFact - Documento generado automáticamente para descarga e impresión.
+                Sistema ProFact - Documento generado desde la Aplicación Móvil.
             </div>
         </div>
     </div>
@@ -492,7 +464,6 @@
         </div>
     </div>
 
-    <!-- CÓDIGO JAVASCRIPT -->
     <script>
         let inventario = JSON.parse(localStorage.getItem('profact_inventario')) || [
             { id: 1, nombre: "Vidrio Laminado 6mm", inicial: 50, vendidos: 12 },
@@ -626,12 +597,16 @@
             document.getElementById('botonGuardarForm').classList.remove('modo-editar');
         }
 
-        /* --- VISTA PREVIA Y DESCARGA NATIVA DE CHROME --- */
+        /* --- GENERADOR PDF COMPATIBLE CON WEBVIEW DE ANDROID STUDIO --- */
         function generarReportePDF() {
             if (inventario.length === 0) {
                 alert("Primero debes agregar al menos un producto a la lista.");
                 return;
             }
+
+            const btn = document.getElementById('btnDescargarPdf');
+            btn.innerText = "⏳ GENERANDO PDF...";
+            btn.disabled = true;
 
             let totalIngresado = 0;
             let totalVendidos = 0;
@@ -672,8 +647,34 @@
             });
             document.getElementById('pdfFechaHoy').innerText = "Fecha: " + fechaFormateada;
 
-            // Invoca la vista previa nativa de Chrome
-            window.print();
+            const elemento = document.getElementById('bloqueAConvertir');
+
+            const opciones = {
+                margin:       8,
+                filename:     'Reporte_ProFact.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Conversión a Blob y activación del listener de Android
+            html2pdf().set(opciones).from(elemento).outputPdf('blob').then(function(blob) {
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = blobUrl;
+                a.download = 'Reporte_ProFact.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                btn.innerText = "📥 DESCARGAR REPORTE PDF";
+                btn.disabled = false;
+            }).catch(err => {
+                alert("Error al generar PDF: " + err);
+                btn.innerText = "📥 DESCARGAR REPORTE PDF";
+                btn.disabled = false;
+            });
         }
 
         dibujarLista();
